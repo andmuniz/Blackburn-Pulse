@@ -379,6 +379,29 @@ Se o ESP32 não conseguir conectar no Wi-Fi por mais de 35 segundos:
 
 ## 8. Manual Técnico & Administração do Sistema
 
+### 8.0 Instalação Automatizada (`instalar.sh`)
+
+O projeto inclui um script de instalação completo que configura toda a infraestrutura automaticamente. Execute-o no Raspberry Pi com:
+
+```bash
+sudo bash instalar.sh
+```
+
+**O que o instalador faz (8 etapas):**
+
+| Etapa | Descrição |
+|---|---|
+| 1. Requisitos | Pré-checagem rigorosa do servidor (SO Debian/Raspbian, systemd, internet, RAM, disco livre e arquitetura). |
+| 2. Diretório | Menu interativo para escolher onde instalar (padrão: `~/Energia`). Timeout de 30s usa o padrão. |
+| 3. Cópia | Copia os arquivos essenciais do projeto, preservando o `banco_energia.db` caso já exista. |
+| 4. Python | Instala Python 3 completo (`python3-dev`, `python3-venv`, `build-essential`), cria `.venv` e instala FastAPI, Uvicorn, Paho-MQTT, Jinja2, FPDF2 e Requests. |
+| 5. systemd | Cria e habilita o serviço `blackburn-pulse.service` com inicialização no boot e reinício automático. |
+| 6. SSL | Instala `mkcert`, gera certificados para `blackburn-pulse.lan`, IP local e `localhost`, salvando a CA em `certs/ca/rootCA.pem`. |
+| 7. Nginx | Instala e configura proxy reverso HTTPS (:443) com redirect HTTP→HTTPS e tratamento de portas (Pi-hole). |
+| 8. Serviços | Configura Mosquitto MQTT para conexão remota do ESP32, agenda cron diário (01:00) e inicia todos os serviços. |
+
+> **Importante:** Ao final, o instalador exibe o caminho do certificado CA raiz (`rootCA.pem`) para você copiar e instalar nos dispositivos clientes (PC, celular) via `scp`.
+
 ### 8.1 Gerenciamento do Serviço `systemd` no Raspberry Pi
 
 O servidor FastAPI roda sob o serviço nativo `blackburn-pulse.service`, isolado em `127.0.0.1:8000`:

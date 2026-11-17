@@ -141,6 +141,7 @@ flowchart TD
 ```text
 Energia/
 ├── main.py                       # Entry point FastAPI (~35 linhas)
+├── instalar.sh                   # Instalador automatizado completo
 ├── banco_energia.db              # SQLite — histórico + config + auditoria
 ├── sincronizador_backup.py       # Sync remoto do MicroSD com retenção
 │
@@ -180,10 +181,26 @@ Energia/
 | MicroSD | FAT32, qualquer capacidade |
 | Broker MQTT | Mosquitto |
 
-### Instalação no Raspberry Pi
+### Instalação Automatizada (Recomendado)
+
+O script `instalar.sh` configura **tudo** automaticamente: dependências Python, virtualenv, serviço systemd, certificados SSL (mkcert), Nginx HTTPS, Mosquitto MQTT e cron de backup diário.
 
 ```bash
 # 1. Clone o repositório
+git clone https://github.com/andmuniz/blackburn-pulse.git
+cd blackburn-pulse
+
+# 2. Execute o instalador
+sudo bash instalar.sh
+```
+
+O instalador apresenta um menu interativo para escolher o diretório de instalação (padrão: `/home/$USER/Energia`), detecta conflitos de porta (incluindo Pi-hole na 80) e gera certificados SSL válidos para a rede local.
+
+<details>
+<summary><strong>Instalação Manual (passo a passo)</strong></summary>
+
+```bash
+# 1. Clone e entre no projeto
 git clone https://github.com/andmuniz/blackburn-pulse.git
 cd blackburn-pulse
 
@@ -195,6 +212,8 @@ pip install fastapi uvicorn paho-mqtt jinja2 python-multipart requests fpdf2
 # 3. Inicie o servidor
 uvicorn main:app --host 127.0.0.1 --port 8000
 ```
+
+</details>
 
 ### Flash do Firmware no ESP32
 

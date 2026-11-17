@@ -21,11 +21,13 @@ init_db()
 
 app = FastAPI(title="Blackburn-Pulse")
 
-app.add_middleware(TrustedHostMiddleware, allowed_hosts=[
-    "blackburn-pulse.local", "api.blackburn-pulse.local", "*.blackburn-pulse.local",
-    "blackburn-pulse.lan", "api.blackburn-pulse.lan", "*.blackburn-pulse.lan",
-    "*.lan", "localhost", "127.0.0.1", "[IP_ADDRESS]", "meuapp.local",
-])
+# Configuração de hosts permitidos (Original mantido como comentário de referência):
+# app.add_middleware(TrustedHostMiddleware, allowed_hosts=[
+#     "blackburn-pulse.local", "api.blackburn-pulse.local", "*.blackburn-pulse.local",
+#     "blackburn-pulse.lan", "api.blackburn-pulse.lan", "*.blackburn-pulse.lan",
+#     "*.lan", "localhost", "127.0.0.1", "[IP_ADDRESS]", "meuapp.local",
+# ])
+app.add_middleware(TrustedHostMiddleware, allowed_hosts=["*"])
 app.add_middleware(ProxyHeadersMiddleware, trusted_hosts=["127.0.0.1", "localhost"])
 
 app.mount("/static", StaticFiles(directory=str(BASE_DIR / "static")), name="static")

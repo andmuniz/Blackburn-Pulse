@@ -1,0 +1,1408 @@
+<!DOCTYPE html>
+
+<html lang="pt-BR" class="dark">
+
+
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Manual do Usuário — Blackburn-Pulse Energy</title>
+
+    <!-- Script de inicialização antecipada de tema (evita flash) -->
+    <script>
+        (function () {
+            var t = localStorage.getItem('blackburn_theme');
+            if (t === 'light') {
+                document.documentElement.classList.remove('dark');
+            } else {
+                document.documentElement.classList.add('dark');
+            }
+        })();
+    </script>
+    <link rel="stylesheet" href="/static/theme.css">
+
+    <!-- Tailwind CSS CDN -->
+
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <script>
+
+        tailwind.config = {
+
+            darkMode: 'class',
+
+            theme: {
+
+                extend: {
+
+                    colors: {
+
+                        brand: {
+
+                            500: '#10b981',
+
+                            600: '#059669',
+
+                            700: '#047857',
+
+                        }
+
+                    }
+
+                }
+
+            }
+
+        }
+
+    </script>
+
+    <!-- FontAwesome for icons -->
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Google Fonts Inter -->
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap"
+        rel="stylesheet">
+
+    <style>
+        body {
+
+            font-family: 'Inter', sans-serif;
+
+        }
+
+
+
+        html {
+
+            scroll-behavior: smooth;
+
+        }
+
+
+
+        /* Animações realistas para o LED Vermelho Físico (Monocromático) */
+
+        @keyframes blink-fast {
+
+            0%,
+            49% {
+                opacity: 1;
+                filter: drop-shadow(0 0 16px #ef4444);
+                background-color: #ef4444;
+            }
+
+            50%,
+            100% {
+                opacity: 0.15;
+                filter: none;
+                background-color: #450a0a;
+            }
+
+        }
+
+
+
+        @keyframes blink-slow {
+
+            0%,
+            49% {
+                opacity: 1;
+                filter: drop-shadow(0 0 16px #ef4444);
+                background-color: #ef4444;
+            }
+
+            50%,
+            100% {
+                opacity: 0.15;
+                filter: none;
+                background-color: #450a0a;
+            }
+
+        }
+
+
+
+        @keyframes blink-double {
+
+            0%,
+            12% {
+                opacity: 1;
+                filter: drop-shadow(0 0 16px #ef4444);
+                background-color: #ef4444;
+            }
+
+            13%,
+            24% {
+                opacity: 0.15;
+                filter: none;
+                background-color: #450a0a;
+            }
+
+            25%,
+            37% {
+                opacity: 1;
+                filter: drop-shadow(0 0 16px #ef4444);
+                background-color: #ef4444;
+            }
+
+            38%,
+            100% {
+                opacity: 0.15;
+                filter: none;
+                background-color: #450a0a;
+            }
+
+        }
+
+
+
+        @keyframes blink-pulse {
+
+            0%,
+            80% {
+                opacity: 1;
+                filter: drop-shadow(0 0 16px #ef4444);
+                background-color: #ef4444;
+            }
+
+            85%,
+            95% {
+                opacity: 0.15;
+                filter: none;
+                background-color: #450a0a;
+            }
+
+            100% {
+                opacity: 1;
+                filter: drop-shadow(0 0 16px #ef4444);
+                background-color: #ef4444;
+            }
+
+        }
+
+
+
+        .led-fixed {
+
+            opacity: 1;
+
+            filter: drop-shadow(0 0 16px #ef4444);
+
+            background-color: #ef4444;
+
+        }
+
+
+
+        .led-pulse {
+
+            animation: blink-pulse 1.8s infinite;
+
+        }
+
+
+
+        .led-fast {
+
+            animation: blink-fast 0.4s infinite;
+
+        }
+
+
+
+        .led-slow {
+
+            animation: blink-slow 1s infinite;
+
+        }
+
+
+
+        .led-double {
+
+            animation: blink-double 1.2s infinite;
+
+        }
+    </style>
+
+    <!-- PWA Manifest & Mobile Icons -->
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#0b0f19">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="apple-touch-icon" href="/static/icon-192.svg">
+</head>
+
+
+
+<body class="bg-slate-950 text-slate-100 min-h-screen antialiased flex flex-col">
+
+
+
+    <!-- Top Navigation Header -->
+
+    <header class="sticky top-0 z-50 bg-slate-900/90 backdrop-blur-md border-b border-slate-800 transition-colors">
+
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+
+            <div class="flex items-center space-x-3">
+
+                <a href="/" class="flex items-center space-x-3 group">
+
+                    <div
+                        class="w-10 h-10 rounded-xl bg-gradient-to-tr from-emerald-500 to-teal-400 flex items-center justify-center text-slate-950 font-black text-xl shadow-lg shadow-emerald-500/20 group-hover:scale-105 transition-transform">
+
+                        <i class="fa-solid fa-bolt"></i>
+
+                    </div>
+
+                    <div>
+
+                        <span class="text-xl font-black tracking-tight text-white">Blackburn-Pulse<span
+                                class="text-emerald-400">.Manual</span></span>
+
+                        <span class="block text-xs text-slate-400 font-medium">Guia Interativo de Operação</span>
+
+                    </div>
+
+                </a>
+
+            </div>
+
+
+
+            <div class="flex items-center space-x-3">
+
+                <a href="/"
+                    class="flex items-center gap-2 bg-emerald-600 hover:bg-emerald-500 text-white px-3 py-1.5 rounded-xl text-xs font-semibold shadow-lg shadow-emerald-600/20 transition-all">
+
+                    <i class="fa-solid fa-arrow-left"></i>
+
+                    <span>Voltar</span>
+
+                </a>
+
+                <button id="themeToggle"
+                    class="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white transition-colors border border-slate-700">
+
+                    <i class="fa-solid fa-moon dark:hidden text-amber-400"></i>
+
+                    <i class="fa-solid fa-sun hidden dark:block text-amber-300"></i>
+
+                </button>
+
+            </div>
+
+        </div>
+
+    </header>
+
+
+
+    <!-- Main Container -->
+
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-1 w-full">
+
+
+
+        <!-- Hero Banner -->
+
+        <div
+            class="bg-gradient-to-r from-emerald-950/40 via-slate-900 to-cyan-950/40 border border-emerald-500/20 rounded-3xl p-6 sm:p-8 mb-8 relative overflow-hidden shadow-2xl">
+
+            <div class="relative z-10 max-w-3xl">
+
+                <span
+                    class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 mb-3">
+
+                    <i class="fa-solid fa-book-sparkles"></i> Manual do Usuário Blackburn-Pulse
+
+                </span>
+
+                <h1 class="text-2xl sm:text-4xl font-black text-white tracking-tight mb-2">
+
+                    Como usar seu medidor inteligente
+
+                </h1>
+
+                <p class="text-sm sm:text-base text-slate-300 leading-relaxed mb-4">
+
+                    Este manual interativo explica passo a passo como acompanhar seu consumo, entender os cards do
+
+                    painel, lançar contas de energia e gerenciar o ESP32 sem cabos.
+
+                </p>
+
+
+
+                <!-- Search Input -->
+
+                <div class="relative max-w-md">
+
+                    <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-3.5 text-slate-400 text-sm"></i>
+
+                    <input type="text" id="manual-search" placeholder="Buscar dúvida (ex: wifi, led, fatura, zerar)..."
+                        class="w-full pl-10 pr-4 py-2.5 rounded-xl bg-slate-900/90 border border-slate-700 text-white placeholder-slate-400 text-sm focus:ring-2 focus:ring-emerald-500 outline-none shadow-inner">
+
+                </div>
+
+            </div>
+
+            <div
+                class="absolute -right-10 -bottom-10 w-72 h-72 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none">
+
+            </div>
+
+        </div>
+
+
+
+        <div class="grid grid-cols-1 lg:grid-cols-4 gap-8">
+
+
+
+            <!-- Sidebar Navigation (Sticky) -->
+
+            <aside class="lg:col-span-1">
+
+                <div class="sticky top-24 bg-slate-900/80 border border-slate-800 rounded-2xl p-4 shadow-sm space-y-1">
+
+                    <span class="text-xs font-bold uppercase tracking-wider text-slate-400 px-3 py-1 block">Tópicos do
+
+                        Guia</span>
+
+                    <a href="#dashboard"
+                        class="nav-link flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold text-slate-300 hover:text-white hover:bg-slate-800 transition-colors">
+
+                        <i class="fa-solid fa-gauge-high text-emerald-400 w-4"></i> Entendendo o Dashboard
+
+                    </a>
+
+                    <a href="#led-simulator"
+                        class="nav-link flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold text-slate-300 hover:text-white hover:bg-slate-800 transition-colors">
+
+                        <i class="fa-solid fa-lightbulb text-amber-400 w-4"></i> Simulador do LED (Pino 23)
+
+                    </a>
+
+                    <a href="#nova-fatura"
+                        class="nav-link flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold text-slate-300 hover:text-white hover:bg-slate-800 transition-colors">
+
+                        <i class="fa-solid fa-calendar-check text-cyan-400 w-4"></i> Data de Início da Conta
+
+                    </a>
+
+                    <a href="#wifi-remoto"
+                        class="nav-link flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold text-slate-300 hover:text-white hover:bg-slate-800 transition-colors">
+
+                        <i class="fa-solid fa-wifi text-sky-400 w-4"></i> Trocar Wi-Fi sem Cabos
+
+                    </a>
+
+                    <a href="#rescue-ap"
+                        class="nav-link flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold text-slate-300 hover:text-white hover:bg-slate-800 transition-colors">
+
+                        <i class="fa-solid fa-shield-halved text-indigo-400 w-4"></i> Rede de Resgate (Portal)
+
+                    </a>
+
+                    <a href="#recuperar"
+                        class="nav-link flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold text-slate-300 hover:text-white hover:bg-slate-800 transition-colors">
+
+                        <i class="fa-solid fa-clock-rotate-left text-rose-400 w-4"></i> Recuperar Consumo
+
+                    </a>
+
+                    <a href="#faq"
+                        class="nav-link flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold text-slate-300 hover:text-white hover:bg-slate-800 transition-colors">
+
+                        <i class="fa-solid fa-circle-question text-purple-400 w-4"></i> Perguntas Frequentes
+
+                    </a>
+
+                </div>
+
+            </aside>
+
+
+
+            <!-- Main Content Area -->
+
+            <main class="lg:col-span-3 space-y-10">
+
+
+
+                <!-- 1. Entendendo o Dashboard -->
+
+                <section id="dashboard"
+                    class="guide-card bg-slate-900 border border-slate-800 rounded-3xl p-6 sm:p-8 shadow-xl">
+
+                    <div class="flex items-center gap-3 mb-6 pb-4 border-b border-slate-800">
+
+                        <div
+                            class="w-10 h-10 rounded-2xl bg-emerald-500/10 text-emerald-400 flex items-center justify-center text-lg">
+
+                            <i class="fa-solid fa-gauge-high"></i>
+
+                        </div>
+
+                        <div>
+
+                            <h2 class="text-xl font-bold text-white">1. Como Interpretar os Cards do Painel</h2>
+
+                            <p class="text-xs text-slate-400">Entenda de onde vem cada número exibido no seu painel.</p>
+
+                        </div>
+
+                    </div>
+
+
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+                        <div class="bg-slate-950/60 border border-slate-800/80 p-4 rounded-2xl">
+
+                            <span class="text-xs font-bold text-emerald-400 flex items-center gap-1.5 mb-1">
+
+                                <i class="fa-solid fa-clock"></i> 1. Leitura Inicial (Ciclo Atual)
+
+                            </span>
+
+                            <p class="text-xs text-slate-300 leading-relaxed">
+
+                                É a quilometragem do relógio físico no instante em que sua fatura começou. Abaixo dele é
+
+                                exibida a <strong>Data de Início</strong> informada na sua conta Enel.
+
+                            </p>
+
+                        </div>
+
+
+
+                        <div class="bg-slate-950/60 border border-slate-800/80 p-4 rounded-2xl">
+
+                            <span class="text-xs font-bold text-cyan-400 flex items-center gap-1.5 mb-1">
+
+                                <i class="fa-solid fa-bolt"></i> 2. Leitura Atual (Visor do Relógio)
+
+                            </span>
+
+                            <p class="text-xs text-slate-300 leading-relaxed">
+
+                                O odômetro virtual sincronizado ao vivo. O número exibido aqui é exatamente o mesmo
+
+                                número que você verá no visor LCD do medidor DDS238.
+
+                            </p>
+
+                        </div>
+
+
+
+                        <div class="bg-slate-950/60 border border-slate-800/80 p-4 rounded-2xl">
+
+                            <span class="text-xs font-bold text-sky-400 flex items-center gap-1.5 mb-1">
+
+                                <i class="fa-solid fa-chart-line"></i> Consumo do Ciclo & Custo Estimado
+
+                            </span>
+
+                            <p class="text-xs text-slate-300 leading-relaxed">
+
+                                O consumo em kWh acumulado na fatura atual e o valor em R$ correspondente, calculado com
+
+                                impostos oficiais "por dentro" (ICMS, PIS, COFINS) e taxa COSIP.
+
+                            </p>
+
+                        </div>
+
+
+
+                        <div class="bg-slate-950/60 border border-slate-800/80 p-4 rounded-2xl">
+
+                            <span class="text-xs font-bold text-amber-400 flex items-center gap-1.5 mb-1">
+
+                                <i class="fa-solid fa-wand-magic-sparkles"></i> Projeção Mensal de Fatura
+
+                            </span>
+
+                            <p class="text-xs text-slate-300 leading-relaxed">
+
+                                Uma estimativa matemática de quanto virá sua conta de luz no final do mês, baseada na
+
+                                média diária real dos dias decorridos até hoje.
+
+                            </p>
+
+                        </div>
+
+                    </div>
+
+                </section>
+
+
+
+                <!-- 2. SIMULADOR DO LED DE STATUS (PINO 23) -->
+
+                <section id="led-simulator"
+                    class="guide-card bg-slate-900 border border-slate-800 rounded-3xl p-6 sm:p-8 shadow-xl">
+
+                    <div class="flex items-center gap-3 mb-6 pb-4 border-b border-slate-800">
+
+                        <div
+                            class="w-10 h-10 rounded-2xl bg-amber-500/10 text-amber-400 flex items-center justify-center text-lg">
+
+                            <i class="fa-solid fa-lightbulb"></i>
+
+                        </div>
+
+                        <div>
+
+                            <h2 class="text-xl font-bold text-white">2. Simulador Interativo do LED Vermelho (Pino 23)
+                            </h2>
+
+                            <p class="text-xs text-slate-400">O LED físico no quadro é vermelho monocromático. O que
+                                muda de um estado para o outro é exclusivamente a <strong>cadência e o ritmo das
+                                    piscadas</strong>.</p>
+
+                        </div>
+
+                    </div>
+
+
+
+                    <!-- Interactive LED Box -->
+
+                    <div
+                        class="bg-slate-950 border border-slate-800 rounded-2xl p-6 flex flex-col md:flex-row items-center gap-6 justify-between mb-6">
+
+                        <div class="flex items-center gap-5">
+
+                            <div
+                                class="w-16 h-16 rounded-2xl bg-slate-900 border border-slate-700 flex items-center justify-center relative shadow-inner">
+
+                                <div id="sim-led" class="w-7 h-7 rounded-full led-fixed transition-all duration-300">
+
+                                </div>
+
+                            </div>
+
+                            <div>
+
+                                <span id="sim-title" class="text-base font-bold text-white block">Aceso Direto (Luz
+                                    Vermelha Contínua)</span>
+
+                                <span id="sim-desc" class="text-xs text-rose-300/80 font-medium block mt-0.5">Sistema
+                                    100% Online e Operando perfeitamente (Wi-Fi + MQTT conectados).</span>
+
+                            </div>
+
+                        </div>
+
+
+
+                        <span id="sim-badge"
+                            class="px-3 py-1 rounded-full text-xs font-mono font-bold bg-rose-500/10 text-rose-300 border border-rose-500/30 whitespace-nowrap">
+
+                            ESTADO: NORMAL
+
+                        </span>
+
+                    </div>
+
+
+
+                    <!-- LED Control Buttons -->
+
+                    <div class="grid grid-cols-2 sm:grid-cols-5 gap-2">
+
+                        <button onclick="setLedState('fixed')"
+                            class="p-2.5 rounded-xl text-xs font-semibold bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 transition-all text-center">
+
+                            <i class="fa-solid fa-circle text-rose-500 mr-1"></i> Aceso Direto
+
+                        </button>
+
+                        <button onclick="setLedState('pulse')"
+                            class="p-2.5 rounded-xl text-xs font-semibold bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 transition-all text-center">
+
+                            <i class="fa-solid fa-bolt text-amber-400 mr-1"></i> Pisca Pulso (60ms)
+
+                        </button>
+
+                        <button onclick="setLedState('fast')"
+                            class="p-2.5 rounded-xl text-xs font-semibold bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 transition-all text-center">
+
+                            <i class="fa-solid fa-wifi text-cyan-400 mr-1"></i> Pisca Rápido (200ms)
+
+                        </button>
+
+                        <button onclick="setLedState('slow')"
+                            class="p-2.5 rounded-xl text-xs font-semibold bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 transition-all text-center">
+
+                            <i class="fa-solid fa-triangle-exclamation text-amber-500 mr-1"></i> Pisca Lento (500ms)
+
+                        </button>
+
+                        <button onclick="setLedState('double')"
+                            class="p-2.5 rounded-xl text-xs font-semibold bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 transition-all text-center">
+
+                            <i class="fa-solid fa-bullhorn text-rose-400 mr-1"></i> Pisca Duplo (1s)
+
+                        </button>
+
+                    </div>
+
+                </section>
+
+
+
+                <!-- 3. Data de Início da Fatura -->
+
+                <section id="nova-fatura"
+                    class="guide-card bg-slate-900 border border-slate-800 rounded-3xl p-6 sm:p-8 shadow-xl">
+
+                    <div class="flex items-center gap-3 mb-6 pb-4 border-b border-slate-800">
+
+                        <div
+                            class="w-10 h-10 rounded-2xl bg-cyan-500/10 text-cyan-400 flex items-center justify-center text-lg">
+
+                            <i class="fa-solid fa-calendar-check"></i>
+
+                        </div>
+
+                        <div>
+
+                            <h2 class="text-xl font-bold text-white">3. Como Iniciar uma Nova Fatura / Mudar a Data</h2>
+
+                            <p class="text-xs text-slate-400">Como alinhar o sistema quando sua conta física da
+
+                                concessionária chegar.</p>
+
+                        </div>
+
+                    </div>
+
+
+
+                    <ol class="space-y-4 text-xs text-slate-300">
+
+                        <li class="flex items-start gap-3 bg-slate-950/40 border border-slate-800/80 p-3.5 rounded-xl">
+
+                            <span
+                                class="w-6 h-6 rounded-lg bg-cyan-500/20 text-cyan-400 flex items-center justify-center font-bold text-xs shrink-0">1</span>
+
+                            <div>
+
+                                <strong class="text-white block text-sm">Pegue a fatura da Enel em mãos:</strong>
+
+                                Localize o campo <strong>"Leitura Anterior"</strong> e a <strong>"Data da Leitura
+
+                                    Anterior"</strong> (data de início do período faturado).
+
+                            </div>
+
+                        </li>
+
+                        <li class="flex items-start gap-3 bg-slate-950/40 border border-slate-800/80 p-3.5 rounded-xl">
+
+                            <span
+                                class="w-6 h-6 rounded-lg bg-cyan-500/20 text-cyan-400 flex items-center justify-center font-bold text-xs shrink-0">2</span>
+
+                            <div>
+
+                                <strong class="text-white block text-sm">Abra a seção Tributos & Configurações:</strong>
+
+                                No campo <strong>Data de Início da Fatura</strong>, escolha no calendário a data exata
+
+                                em que a conta começou (ex: <code>02/10/2026</code>).
+
+                            </div>
+
+                        </li>
+
+                        <li class="flex items-start gap-3 bg-slate-950/40 border border-slate-800/80 p-3.5 rounded-xl">
+
+                            <span
+                                class="w-6 h-6 rounded-lg bg-cyan-500/20 text-cyan-400 flex items-center justify-center font-bold text-xs shrink-0">3</span>
+
+                            <div>
+
+                                <strong class="text-white block text-sm">Clique em Salvar Alterações:</strong>
+
+                                O sistema recalcula instantaneamente os <strong>dias decorridos</strong>, a
+
+                                <strong>média diária</strong> e a <strong>projeção de custo</strong> com base no período
+
+                                exato, sem zerar sua contagem de hoje!
+
+                            </div>
+
+                        </li>
+
+                    </ol>
+
+                </section>
+
+
+
+                <!-- 4. Trocar Wi-Fi sem Cabos -->
+
+                <section id="wifi-remoto"
+                    class="guide-card bg-slate-900 border border-slate-800 rounded-3xl p-6 sm:p-8 shadow-xl">
+
+                    <div class="flex items-center gap-3 mb-6 pb-4 border-b border-slate-800">
+
+                        <div
+                            class="w-10 h-10 rounded-2xl bg-sky-500/10 text-sky-400 flex items-center justify-center text-lg">
+
+                            <i class="fa-solid fa-wifi"></i>
+
+                        </div>
+
+                        <div>
+
+                            <h2 class="text-xl font-bold text-white">4. Alterar o Wi-Fi Remotamente (Sem Cabo USB)</h2>
+
+                            <p class="text-xs text-slate-400">Como trocar a senha ou nome da rede direto pelo navegador.
+
+                            </p>
+
+                        </div>
+
+                    </div>
+
+
+
+                    <div class="space-y-3 text-xs text-slate-300">
+
+                        <p class="leading-relaxed">
+
+                            Se você vai mudar a senha do seu roteador ou colocar o ESP32 em outra rede Wi-Fi da casa:
+
+                        </p>
+
+                        <div class="bg-sky-950/30 border border-sky-800/40 p-4 rounded-xl space-y-2">
+
+                            <div class="flex items-center gap-2 text-sky-300 font-semibold text-sm">
+
+                                <i class="fa-solid fa-paper-plane"></i> Passo a Passo no Painel:
+
+                            </div>
+
+                            <ol class="list-decimal list-inside space-y-1.5 text-slate-300">
+
+                                <li>Desça até o card <strong>Configurações Remotas de Rede do ESP32</strong>.</li>
+
+                                <li>Digite o novo <strong>Nome da Rede Wi-Fi (SSID)</strong>.</li>
+
+                                <li>Digite a <strong>Nova Senha</strong> (você pode clicar no olhinho para conferir).
+
+                                </li>
+
+                                <li>Clique no botão <strong>"Enviar e Aplicar no ESP32"</strong>.</li>
+
+                            </ol>
+
+                        </div>
+
+                        <p class="text-slate-400 italic">
+
+                            O ESP32 recebe a instrução via MQTT, grava na memória permanente (NVS Flash) e reinicia
+
+                            conectado na nova rede em menos de 3 segundos!
+
+                        </p>
+
+                    </div>
+
+                </section>
+
+
+
+                <!-- 5. Rede de Resgate (Portal Cativo) -->
+
+                <section id="rescue-ap"
+                    class="guide-card bg-slate-900 border border-slate-800 rounded-3xl p-6 sm:p-8 shadow-xl">
+
+                    <div class="flex items-center gap-3 mb-6 pb-4 border-b border-slate-800">
+
+                        <div
+                            class="w-10 h-10 rounded-2xl bg-indigo-500/10 text-indigo-400 flex items-center justify-center text-lg">
+
+                            <i class="fa-solid fa-shield-halved"></i>
+
+                        </div>
+
+                        <div>
+
+                            <h2 class="text-xl font-bold text-white">5. O que fazer se o Roteador Queimou ou já Mudou?
+
+                            </h2>
+
+                            <p class="text-xs text-slate-400">A Rede de Emergência do ESP32 (Portal Cativo).</p>
+
+                        </div>
+
+                    </div>
+
+
+
+                    <div class="bg-slate-950 border border-slate-800 p-4 rounded-2xl space-y-3 text-xs text-slate-300">
+
+                        <p>
+
+                            Se você trocou de operadora de internet ou o roteador queimou e o ESP32 não consegue mais
+
+                            conectar no Wi-Fi antigo:
+
+                        </p>
+
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-3 pt-2">
+
+                            <div class="bg-slate-900 p-3 rounded-xl border border-slate-800 text-center">
+
+                                <span class="text-emerald-400 font-bold block mb-1">Passo 1</span>
+
+                                O ESP32 tolera até 3 ciclos de reinicialização (~10 min) aguardando o roteador. Se a
+                                rede não voltar, ele ativa a rede Wi-Fi aberta <strong>Blackburn-Config</strong> (LED
+                                com piscada dupla).
+
+                            </div>
+
+                            <div class="bg-slate-900 p-3 rounded-xl border border-slate-800 text-center">
+
+                                <span class="text-cyan-400 font-bold block mb-1">Passo 2</span>
+
+                                Pegue o celular, conecte na rede <strong>Blackburn-Config</strong> e abra o navegador no
+
+                                IP <strong>192.168.4.1</strong>.
+
+                            </div>
+
+                            <div class="bg-slate-900 p-3 rounded-xl border border-slate-800 text-center">
+
+                                <span class="text-sky-400 font-bold block mb-1">Passo 3</span>
+
+                                Digite o nome do novo Wi-Fi (inclusive rede oculta) e a senha, e clique em Salvar. O
+                                ESP32 reinicia conectado na
+
+                                nova rede!
+
+                            </div>
+
+                        </div>
+
+                        <div class="p-3 bg-emerald-500/10 border border-emerald-500/20 rounded-xl text-emerald-300">
+
+                            <i class="fa-solid fa-circle-check mr-1"></i> Mesmo enquanto estiver no modo de resgate ou
+                            reconectando, o
+
+                            ESP32 continua contando cada pulso do medidor físico normalmente sem perder nada!
+
+                        </div>
+
+                        <div
+                            class="p-3 bg-indigo-500/10 border border-indigo-500/20 rounded-xl text-indigo-300 text-[11px]">
+
+                            <i class="fa-solid fa-tower-broadcast mr-1 text-indigo-400"></i> <strong>Quedas de energia
+                                rotineiras do roteador:</strong> O ESP32 usa varredura ativa (*probe request*)
+                            compatível com redes ocultas e aguarda o roteador subir sozinho, sem acionar o portal à toa
+                            e sem entrar em loop de reinicialização.
+
+                        </div>
+
+                    </div>
+
+                </section>
+
+
+
+                <!-- 6. Recuperar Consumo Acidental -->
+
+                <section id="recuperar"
+                    class="guide-card bg-slate-900 border border-slate-800 rounded-3xl p-6 sm:p-8 shadow-xl">
+
+                    <div class="flex items-center gap-3 mb-6 pb-4 border-b border-slate-800">
+
+                        <div
+                            class="w-10 h-10 rounded-2xl bg-rose-500/10 text-rose-400 flex items-center justify-center text-lg">
+
+                            <i class="fa-solid fa-clock-rotate-left"></i>
+
+                        </div>
+
+                        <div>
+
+                            <h2 class="text-xl font-bold text-white">6. O Ciclo Zerou Acidentalmente? Como Recuperar
+
+                            </h2>
+
+                            <p class="text-xs text-slate-400">Restauração imediata da contagem com um único clique.</p>
+
+                        </div>
+
+                    </div>
+
+
+
+                    <div
+                        class="bg-amber-950/20 border border-amber-800/40 p-4 rounded-2xl text-xs text-amber-200 space-y-2">
+
+                        <strong class="font-bold text-sm text-amber-300 block flex items-center gap-2">
+
+                            <i class="fa-solid fa-life-ring"></i> Se o seu consumo do mês voltou para 0,00 kWh:
+
+                        </strong>
+
+                        <p class="text-slate-300">
+
+                            Não se preocupe: as medições anteriores continuam salvas no banco de dados SQLite. Para
+
+                            recuperar tudo:
+
+                        </p>
+
+                        <ol class="list-decimal list-inside space-y-1 text-slate-200 font-medium">
+
+                            <li>Vá até a seção <strong>Tributos & Configurações</strong>.</li>
+
+                            <li>No canto superior direito do card, clique no botão amarelo <strong>"Recuperar Consumo
+
+                                    Anterior"</strong>.</li>
+
+                            <li>Confirme a mensagem. O sistema restaura o maior kWh registrado hoje antes do zeramento
+
+                                na hora!</li>
+
+                        </ol>
+
+                    </div>
+
+                </section>
+
+
+
+                <!-- 7. Perguntas Frequentes (FAQ) -->
+
+                <section id="faq"
+                    class="guide-card bg-slate-900 border border-slate-800 rounded-3xl p-6 sm:p-8 shadow-xl">
+
+                    <div class="flex items-center gap-3 mb-6 pb-4 border-b border-slate-800">
+
+                        <div
+                            class="w-10 h-10 rounded-2xl bg-purple-500/10 text-purple-400 flex items-center justify-center text-lg">
+
+                            <i class="fa-solid fa-circle-question"></i>
+
+                        </div>
+
+                        <div>
+
+                            <h2 class="text-xl font-bold text-white">7. Perguntas Frequentes (FAQ)</h2>
+
+                            <p class="text-xs text-slate-400">Respostas rápidas para as dúvidas mais comuns.</p>
+
+                        </div>
+
+                    </div>
+
+
+
+                    <div class="space-y-3">
+
+                        <details class="group bg-slate-950 border border-slate-800 rounded-2xl p-4 cursor-pointer">
+                            <summary class="font-semibold text-sm text-white flex justify-between items-center">
+                                <span>Se faltar luz na rua e o ESP32 desligar, ele perde os dados?</span>
+                                <i
+                                    class="fa-solid fa-chevron-down text-slate-500 group-open:rotate-180 transition-transform"></i>
+                            </summary>
+                            <p class="text-xs text-slate-400 mt-3 leading-relaxed">
+                                <strong>Não!</strong> Como não há energia na rede, o consumo é zero. O último valor de
+                                pulsos é gravado a cada <strong>30 segundos</strong> diretamente no <strong>Módulo Micro
+                                    SD Card</strong> (arquivo atômico <code>/pulsos.txt</code>).
+                                Quando a luz retorna, o ESP32 lê o cartão Micro SD e continua a contagem
+                                instantaneamente de onde parou, com <strong>zero desgaste na memória Flash NVS</strong>
+                                do microcontrolador.
+                            </p>
+                        </details>
+
+                        <details class="group bg-slate-950 border border-slate-800 rounded-2xl p-4 cursor-pointer">
+                            <summary class="font-semibold text-sm text-white flex justify-between items-center">
+                                <span>Como funciona o Módulo Micro SD e por que ele foi adicionado?</span>
+                                <i
+                                    class="fa-solid fa-chevron-down text-slate-500 group-open:rotate-180 transition-transform"></i>
+                            </summary>
+                            <p class="text-xs text-slate-400 mt-3 leading-relaxed">
+                                O ESP32 possui um limite físico de ciclos de gravação em sua memória Flash interna
+                                (NVS). Para garantir uma vida útil de mais de 10 a 20 anos sem desgaste, adicionamos um
+                                <strong>Módulo Micro SD Card</strong> conectado via barramento SPI dedicado (GPIO 15,
+                                17, 18, 19).
+                                <br><br>
+                                O sistema salva a contagem em <code>/pulsos.tmp</code> e renomeia para
+                                <code>/pulsos.txt</code> a cada 30 segundos. Se o cartão for removido ou apresentar
+                                erro, o sistema ativa um fallback automático para a Flash interna sem interromper a
+                                contagem.
+                            </p>
+                        </details>
+
+                        <details class="group bg-slate-950 border border-slate-800 rounded-2xl p-4 cursor-pointer">
+                            <summary class="font-semibold text-sm text-white flex justify-between items-center">
+                                <span>De quanto em quanto tempo o backup é feito e onde os arquivos ficam salvos?</span>
+                                <i
+                                    class="fa-solid fa-chevron-down text-slate-500 group-open:rotate-180 transition-transform"></i>
+                            </summary>
+                            <p class="text-xs text-slate-400 mt-3 leading-relaxed">
+                                O processo de segurança opera em <strong>três frequências e etapas
+                                    complementares</strong>:
+                                <br><br>
+                                1. <strong>No Hardware ESP32 (A cada 30 segundos):</strong> Gravação física contínua e
+                                atômica no cartão Micro SD nos arquivos diários (<code>YYYY-MM-DD.txt</code>).<br>
+                                2. <strong>Na Memória Flash NVS (1 vez por dia):</strong> Persistência da última data
+                                válida conhecida à meia-noite para resiliência caso reinicie offline.<br>
+                                3. <strong>Sincronização para o Raspberry Pi:</strong> Salva dentro da pasta do projeto
+                                em <code>/home/user_energia/Energia/historico_energia/</code>. Pode ser disparada a
+                                qualquer momento clicando em <strong>"Sincronizar SD"</strong> no menu Auditoria ou
+                                agendada automaticamente via Cron às 01:00 da madrugada.<br><br>
+                                <strong>Regra dos 2 Mais Recentes:</strong> O dia atual e o anterior nunca são apagados
+                                do cartão SD, garantindo redundância física e digital simultânea.
+                            </p>
+                        </details>
+
+                        <details class="group bg-slate-950 border border-slate-800 rounded-2xl p-4 cursor-pointer">
+                            <summary class="font-semibold text-sm text-white flex justify-between items-center">
+                                <span>Temos o botão de "Recuperar dados para SD" caso ocorra algo ou isso é
+                                    automático?</span>
+                                <i
+                                    class="fa-solid fa-chevron-down text-slate-500 group-open:rotate-180 transition-transform"></i>
+                            </summary>
+                            <p class="text-xs text-slate-400 mt-3 leading-relaxed">
+                                O sistema possui <strong>ambas as camadas de segurança</strong> (auto-recuperação
+                                automática em tempo de execução e recuperação manual via botão):
+                                <br><br>
+                                • <strong>Auto-Recuperação Automática (Sem intervenção manual):</strong> Se houver
+                                instabilidade no barramento SPI ou no cartão SD durante a operação, o ESP32 executa o
+                                <code>autoRecuperarBarramentoSD()</code>, reiniciando o barramento SPI de forma
+                                transparente. Se o cartão for ejetado ou falhar, o ESP32 entra em modo de emergência na
+                                RAM/NVS e tenta reconectar a cada 60s.<br>
+                                • <strong>Alertas no Painel de Auditoria:</strong> Se o status do SD mudar para falha, o
+                                sistema reporta o alerta imediatamente via telemetria MQTT e registra log crítico na
+                                Auditoria.<br>
+                                • <strong>Botão "Recuperar para SD" (Restauração Manual):</strong> Disponível
+                                diretamente na barra superior da tela de <strong>Auditoria</strong>. Se você precisar
+                                substituir um cartão queimado ou formatá-lo, basta clicar no botão. O sistema enviará o
+                                valor consolidado de pulsos do banco SQLite de volta para o ESP32 via HTTP
+                                (<code>POST /restaurar-pulsos?val=X</code>), regravando o <code>/pulsos.txt</code>
+                                instantaneamente.
+                            </p>
+                        </details>
+
+                        <details class="group bg-slate-950 border border-slate-800 rounded-2xl p-4 cursor-pointer">
+                            <summary class="font-semibold text-sm text-white flex justify-between items-center">
+                                <span>Como acessar o painel de forma segura com HTTPS no celular e computador?</span>
+                                <i
+                                    class="fa-solid fa-chevron-down text-slate-500 group-open:rotate-180 transition-transform"></i>
+                            </summary>
+                            <p class="text-xs text-slate-400 mt-3 leading-relaxed">
+                                O sistema roda sob um proxy reverso <strong>Nginx</strong> com criptografia SSL local
+                                (mkcert) e DNS pelo Pi-hole.
+                                <br><br>
+                                • <strong>No Computador:</strong> Acesse via <code>https://blackburn-pulse.lan</code> ou
+                                <code>https://blackburn-pulse.local</code>.<br>
+                                • <strong>No Celular (Android / iOS):</strong> Como o Android ignora domínios .local por
+                                padrão mDNS, acesse sempre por <code>https://blackburn-pulse.lan</code>. Certifique-se
+                                de que o "DNS Privado" nas configurações do celular esteja desativado para que o Pi-hole
+                                responda o IP correto com cadeado verde.
+                            </p>
+                        </details>
+
+
+
+                        <details class="group bg-slate-950 border border-slate-800 rounded-2xl p-4 cursor-pointer">
+
+                            <summary class="font-semibold text-sm text-white flex justify-between items-center">
+
+                                <span>Se o Wi-Fi ou o Raspberry Pi ficarem desligados durante a noite?</span>
+
+                                <i
+                                    class="fa-solid fa-chevron-down text-slate-500 group-open:rotate-180 transition-transform"></i>
+
+                            </summary>
+
+                            <p class="text-xs text-slate-400 mt-3 leading-relaxed">
+
+                                O ESP32 no quadro elétrico continua contando cada pulso por interrupção de hardware na
+
+                                memória RAM. Assim que a rede voltar, ele entrega o total acumulado e o sistema preenche
+
+                                suavemente as horas que ficaram fora do ar a cada 30 minutos.
+
+                            </p>
+
+                        </details>
+
+
+
+                        <details class="group bg-slate-950 border border-slate-800 rounded-2xl p-4 cursor-pointer">
+
+                            <summary class="font-semibold text-sm text-white flex justify-between items-center">
+
+                                <span>O que significa o cálculo de imposto "Por Dentro"?</span>
+
+                                <i
+                                    class="fa-solid fa-chevron-down text-slate-500 group-open:rotate-180 transition-transform"></i>
+
+                            </summary>
+
+                            <p class="text-xs text-slate-400 mt-3 leading-relaxed">
+
+                                É a fórmula oficial aplicada pela Enel SP e concessionárias de energia do Brasil, onde o
+                                ICMS, PIS e COFINS incidem sobre a própria base de cálculo:
+                                <code>Base = Valor Bruto / (1 - Impostos)</code>. Além disso, o Blackburn-Pulse aplica
+                                automaticamente as
+                                <b>faixas progressivas do ICMS do Estado de São Paulo (Residencial B1)</b>:
+                                <br><br>
+                                • <b>Até 90 kWh:</b> Isenção total (0% de ICMS).<br>
+                                • <b>De 91 a 200 kWh:</b> Alíquota de 12%.<br>
+                                • <b>Acima de 200 kWh:</b> Alíquota de 18%.<br><br>
+                                Por isso o valor em R$ do Blackburn-Pulse bate exatamente com a sua fatura real.
+
+                            </p>
+
+                        </details>
+
+
+
+                        <details class="group bg-slate-950 border border-slate-800 rounded-2xl p-4 cursor-pointer">
+
+                            <summary class="font-semibold text-sm text-white flex justify-between items-center">
+
+                                <span>Como fechar o mês e guardar a fatura oficial em PDF?</span>
+
+                                <i
+                                    class="fa-solid fa-chevron-down text-slate-500 group-open:rotate-180 transition-transform"></i>
+
+                            </summary>
+
+                            <p class="text-xs text-slate-400 mt-3 leading-relaxed">
+
+                                No topo do painel principal, clique no botão <strong>"Fechar Ciclo Atual"</strong>. O
+
+                                sistema arquiva a medição do mês permanentemente no histórico, permitindo que você
+
+                                clique a qualquer momento em <strong>"Imprimir / PDF"</strong> para gerar o boleto
+
+                                demonstrativo idêntico ao da concessionária.
+
+                            </p>
+
+                        </details>
+
+                    </div>
+
+                </section>
+
+
+
+            </main>
+
+        </div>
+
+    </div>
+
+
+
+    <!-- Footer -->
+
+    <footer class="bg-slate-900 border-t border-slate-800 py-6 text-center text-xs text-slate-500 mt-12">
+
+        <p>Blackburn-Pulse &copy; 2026 Medição Residencial Inteligente.</p>
+
+    </footer>
+
+
+
+    <!-- Interactive Script -->
+
+    <script>
+
+        // Theme Toggle functionality com persistência
+        const themeToggleBtn = document.getElementById('themeToggle');
+        const htmlElement = document.documentElement;
+
+        function aplicarTemaManual(tema) {
+            try {
+                if (tema === 'light') {
+                    htmlElement.classList.remove('dark');
+                    localStorage.setItem('blackburn_theme', 'light');
+                } else {
+                    htmlElement.classList.add('dark');
+                    localStorage.setItem('blackburn_theme', 'dark');
+                }
+            } catch (e) { }
+        }
+
+        if (themeToggleBtn) {
+            themeToggleBtn.addEventListener('click', () => {
+                const isDark = htmlElement.classList.contains('dark');
+                aplicarTemaManual(isDark ? 'light' : 'dark');
+            });
+        }
+
+        const temaSalvo = localStorage.getItem('blackburn_theme') || 'dark';
+        aplicarTemaManual(temaSalvo);
+
+
+
+        // LED Simulator Controller
+
+        const simLed = document.getElementById('sim-led');
+
+        const simTitle = document.getElementById('sim-title');
+
+        const simDesc = document.getElementById('sim-desc');
+
+        const simBadge = document.getElementById('sim-badge');
+
+
+
+        const states = {
+
+            fixed: {
+
+                className: 'led-fixed',
+
+                title: 'Aceso Direto (Luz Vermelha Contínua)',
+
+                desc: 'Sistema 100% Online e Operando perfeitamente (Wi-Fi + MQTT conectados).',
+
+                badgeText: 'ESTADO: NORMAL',
+
+                badgeClass: 'bg-rose-500/10 text-rose-300 border-rose-500/30'
+
+            },
+
+            pulse: {
+
+                className: 'led-pulse',
+
+                title: 'Piscadinha Rápida (Apaga 60ms e volta)',
+
+                desc: 'Confirmação física de pulso lido do medidor DDS238 (consumo em andamento).',
+
+                badgeText: 'PULSO REGISTRADO',
+
+                badgeClass: 'bg-rose-500/10 text-rose-300 border-rose-500/30'
+
+            },
+
+            fast: {
+
+                className: 'led-fast',
+
+                title: 'Piscando Rápido (5 piscadas/segundo - 200ms)',
+
+                desc: 'O ESP32 está ligando ou procurando conexão com a sua rede Wi-Fi.',
+
+                badgeText: 'BUSCANDO WI-FI',
+
+                badgeClass: 'bg-rose-500/10 text-rose-300 border-rose-500/30'
+
+            },
+
+            slow: {
+
+                className: 'led-slow',
+
+                title: 'Piscando Lento (1 piscada/segundo - 500ms)',
+
+                desc: 'Wi-Fi conectado, mas falhou ao comunicar com o Broker MQTT (Raspberry Pi fora ou reiniciando).',
+
+                badgeText: 'FALHA NO MQTT',
+
+                badgeClass: 'bg-rose-500/20 text-rose-200 border-rose-500/50'
+
+            },
+
+            double: {
+
+                className: 'led-double',
+
+                title: 'Piscada Dupla (2 piscadas e pausa de 1s)',
+
+                desc: 'Modo de Resgate Ativo! O ESP32 abriu o ponto de acesso Wi-Fi próprio "Blackburn-Config".',
+
+                badgeText: 'REDE RESGATE ATIVA',
+
+                badgeClass: 'bg-rose-500/10 text-rose-300 border-rose-500/30'
+
+            }
+
+        };
+
+
+
+        function setLedState(stateKey) {
+
+            const s = states[stateKey];
+
+            if (!s) return;
+
+            simLed.className = 'w-7 h-7 rounded-full transition-all duration-300 ' + s.className;
+
+            simTitle.innerText = s.title;
+
+            simDesc.innerText = s.desc;
+
+            simBadge.innerText = s.badgeText;
+
+            simBadge.className = 'px-3 py-1 rounded-full text-xs font-mono font-bold border whitespace-nowrap ' + s.badgeClass;
+
+        }
+
+
+
+        // Search Filter inside Manual
+
+        document.getElementById('manual-search').addEventListener('input', function (e) {
+
+            const query = e.target.value.toLowerCase().trim();
+
+            const cards = document.querySelectorAll('.guide-card');
+
+
+
+            cards.forEach(card => {
+
+                const text = card.innerText.toLowerCase();
+
+                if (text.includes(query)) {
+
+                    card.classList.remove('hidden');
+
+                } else {
+
+                    card.classList.add('hidden');
+
+                }
+
+            });
+
+        });
+
+    </script>
+
+</body>
+
+
+
+</html>

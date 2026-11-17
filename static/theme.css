@@ -1,0 +1,250 @@
+/* ==========================================================================
+   Blackburn-Pulse Energy - Light Theme Palette & System Adaptations
+   Ativado automaticamente quando o elemento <html> NÃO possui a classe 'dark'
+   ========================================================================== */
+
+/* 1. Fundo da Página e Tipografia Base */
+html:not(.dark) body {
+    background-color: #f1f5f9 !important; /* slate-100 */
+    color: #0f172a !important;            /* slate-900 */
+}
+
+/* 2. Anulação Universal de Gradientes Escuros */
+html:not(.dark) [class*="bg-gradient-to-"] {
+    background-image: none !important;
+    background-color: #ffffff !important;
+}
+
+/* Banner de Destaque no Manual (Gradiente Suave Claro) */
+html:not(.dark) .from-emerald-950\/40,
+html:not(.dark) [class*="from-emerald-950"] {
+    background: linear-gradient(135deg, #ecfdf5 0%, #f8fafc 50%, #f0fdfa 100%) !important;
+    border-color: #a7f3d0 !important;
+}
+
+/* 3. Superfícies Principais, Painéis, Cards e Cabeçalhos */
+html:not(.dark) header,
+html:not(.dark) nav,
+html:not(.dark) .bg-slate-900\/80,
+html:not(.dark) .bg-slate-900\/90,
+html:not(.dark) .bg-slate-900\/60,
+html:not(.dark) .bg-slate-900\/50,
+html:not(.dark) .bg-slate-900 {
+    background-color: #ffffff !important;
+    border-color: #e2e8f0 !important; /* slate-200 */
+    box-shadow: 0 1px 3px 0 rgba(15, 23, 42, 0.05);
+}
+
+/* 4. Sub-painéis, Containers Internos e Poços */
+html:not(.dark) .bg-slate-950,
+html:not(.dark) .bg-slate-950\/70,
+html:not(.dark) .bg-slate-950\/60,
+html:not(.dark) .bg-slate-950\/50,
+html:not(.dark) .bg-slate-950\/40 {
+    background-color: #f8fafc !important; /* slate-50 */
+    border-color: #e2e8f0 !important;
+}
+
+/* 5. Sub-cards Internos e Caixas de Leitura */
+html:not(.dark) .bg-slate-800,
+html:not(.dark) .bg-slate-800\/80,
+html:not(.dark) .bg-slate-800\/60,
+html:not(.dark) .bg-slate-800\/50,
+html:not(.dark) .bg-slate-800\/40 {
+    background-color: #f8fafc !important; /* slate-50 */
+    border-color: #cbd5e1 !important;     /* slate-300 */
+    color: #1e293b !important;
+}
+
+/* Card 3: Consumo Efetivo (Verde suave com texto escuro) */
+html:not(.dark) .bg-emerald-950\/40,
+html:not(.dark) .bg-emerald-950\/30 {
+    background-color: #ecfdf5 !important; /* emerald-50 */
+    border-color: #6ee7b7 !important;     /* emerald-300 */
+}
+html:not(.dark) .bg-emerald-950\/40 .text-emerald-300,
+html:not(.dark) .bg-emerald-950\/40 .text-emerald-400 {
+    color: #047857 !important; /* emerald-700 */
+}
+
+/* Banner de Proteção contra Perda de Conexão / ArduinoOTA */
+html:not(.dark) .bg-cyan-950\/30,
+html:not(.dark) .bg-cyan-950\/40 {
+    background-color: #f0fdfa !important; /* cyan-50 */
+    border-color: #99f6e4 !important;     /* cyan-200 */
+    color: #0f766e !important;            /* teal-700 */
+}
+html:not(.dark) .bg-cyan-950\/30 span,
+html:not(.dark) .bg-cyan-950\/30 strong,
+html:not(.dark) .text-cyan-200,
+html:not(.dark) .text-cyan-300 {
+    color: #0e7490 !important; /* cyan-700 */
+}
+html:not(.dark) .bg-cyan-900\/50 {
+    background-color: #ccfbf1 !important; /* teal-100 */
+    border-color: #5eead4 !important;     /* teal-300 */
+    color: #0f766e !important;
+}
+
+/* 6. Botões de Ação do Topo (Contraste Perfeito no Fundo Claro) */
+html:not(.dark) a.bg-cyan-600\/20,
+html:not(.dark) button.bg-cyan-600\/20 {
+    background-color: #e0f2fe !important; /* sky-100 */
+    border-color: #bae6fd !important;     /* sky-200 */
+    color: #0369a1 !important;            /* sky-700 */
+}
+html:not(.dark) a.bg-cyan-600\/20:hover {
+    background-color: #bae6fd !important;
+    color: #0284c7 !important;
+}
+
+html:not(.dark) a.bg-purple-600\/20,
+html:not(.dark) button.bg-purple-600\/20 {
+    background-color: #f3e8ff !important; /* purple-100 */
+    border-color: #e9d5ff !important;     /* purple-200 */
+    color: #6b21a8 !important;            /* purple-700 */
+}
+html:not(.dark) a.bg-purple-600\/20:hover {
+    background-color: #e9d5ff !important;
+    color: #7e22ce !important;
+}
+
+html:not(.dark) a.bg-indigo-600\/20,
+html:not(.dark) button.bg-indigo-600\/20 {
+    background-color: #e0e7ff !important; /* indigo-100 */
+    border-color: #c7d2fe !important;     /* indigo-200 */
+    color: #3730a3 !important;            /* indigo-800 */
+}
+html:not(.dark) a.bg-indigo-600\/20:hover {
+    background-color: #c7d2fe !important;
+    color: #4338ca !important;
+}
+
+html:not(.dark) a[href="/gerar-pdf"].bg-slate-800 {
+    background-color: #ffffff !important;
+    border-color: #cbd5e1 !important;
+    color: #0f172a !important;
+}
+
+/* Estados de Hover Neutros */
+html:not(.dark) .hover\:bg-slate-800:hover,
+html:not(.dark) .hover\:bg-slate-700:hover,
+html:not(.dark) .hover\:bg-slate-800\/40:hover {
+    background-color: #f1f5f9 !important;
+    color: #0f172a !important;
+}
+
+/* 7. Bordas e Divisões Estruturais */
+html:not(.dark) .border-slate-800,
+html:not(.dark) .border-slate-800\/80,
+html:not(.dark) .border-slate-800\/60,
+html:not(.dark) .border-slate-700,
+html:not(.dark) .border-slate-700\/80,
+html:not(.dark) .border-slate-700\/60,
+html:not(.dark) .divide-slate-800\/60 > :not([hidden]) ~ :not([hidden]),
+html:not(.dark) .divide-slate-800 > :not([hidden]) ~ :not([hidden]) {
+    border-color: #e2e8f0 !important;
+}
+
+/* 8. Tipografia e Legibilidade */
+html:not(.dark) .text-white,
+html:not(.dark) .text-slate-100,
+html:not(.dark) .text-slate-200 {
+    color: #0f172a !important; /* slate-900 */
+}
+
+html:not(.dark) .text-slate-300,
+html:not(.dark) .text-slate-400 {
+    color: #475569 !important; /* slate-600 */
+}
+
+html:not(.dark) .text-slate-500 {
+    color: #64748b !important; /* slate-500 */
+}
+
+/* Destaques Coloridos Adaptados para Contraste */
+html:not(.dark) .text-emerald-400 {
+    color: #059669 !important; /* emerald-600 */
+}
+
+html:not(.dark) .text-cyan-400 {
+    color: #0284c7 !important; /* sky-600 */
+}
+
+html:not(.dark) .text-amber-400 {
+    color: #d97706 !important; /* amber-600 */
+}
+
+html:not(.dark) .text-purple-400 {
+    color: #7c3aed !important; /* violet-600 */
+}
+
+html:not(.dark) .text-rose-400,
+html:not(.dark) .text-rose-300 {
+    color: #e11d48 !important; /* rose-600 */
+}
+
+html:not(.dark) .text-indigo-400 {
+    color: #4f46e5 !important; /* indigo-600 */
+}
+
+/* 9. Inputs, Textareas e Seletores de Formulário */
+html:not(.dark) input:not([type="checkbox"]):not([type="radio"]),
+html:not(.dark) select,
+html:not(.dark) textarea {
+    background-color: #ffffff !important;
+    color: #0f172a !important;
+    border-color: #cbd5e1 !important;
+}
+
+html:not(.dark) input::placeholder,
+html:not(.dark) textarea::placeholder {
+    color: #94a3b8 !important;
+}
+
+html:not(.dark) select option {
+    background-color: #ffffff !important;
+    color: #0f172a !important;
+}
+
+/* Indicador de Data no Safari / Chrome */
+html:not(.dark) input[type="date"]::-webkit-calendar-picker-indicator {
+    filter: invert(0.2) !important;
+}
+
+/* 10. Modais e Caixas de Diálogo */
+html:not(.dark) .fixed.inset-0.bg-slate-950\/80,
+html:not(.dark) .fixed.inset-0.bg-black\/80,
+html:not(.dark) .fixed.inset-0.bg-black\/60 {
+    background-color: rgba(15, 23, 42, 0.55) !important;
+}
+
+/* Botões Ativos e Badges de Período */
+html:not(.dark) .btn-periodo.bg-slate-950 {
+    background-color: #ffffff !important;
+    border-color: #cbd5e1 !important;
+    color: #475569 !important;
+}
+
+/* 11. Tabelas */
+html:not(.dark) thead tr {
+    background-color: #f1f5f9 !important;
+    color: #475569 !important;
+}
+
+html:not(.dark) tbody tr:hover {
+    background-color: #f8fafc !important;
+}
+
+/* Card do ESP32 no topo */
+html:not(.dark) #esp-status-card {
+    background-color: #ffffff !important;
+    border-color: #e2e8f0 !important;
+}
+
+/* Botão ThemeToggle */
+html:not(.dark) #themeToggle {
+    background-color: #f1f5f9 !important;
+    border-color: #cbd5e1 !important;
+    color: #0f172a !important;
+}

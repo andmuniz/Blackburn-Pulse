@@ -1,0 +1,646 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blackburn-Pulse - Auditoria do Sistema & Relatório de Quedas</title>
+    <!-- Script de inicialização antecipada de tema (evita flash) -->
+    <script>
+        (function() {
+            var t = localStorage.getItem('blackburn_theme');
+            if (t === 'light') {
+                document.documentElement.classList.remove('dark');
+            } else {
+                document.documentElement.classList.add('dark');
+            }
+        })();
+    </script>
+    <link rel="stylesheet" href="/static/theme.css">
+
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        slate: { 950: '#0b0f19' }
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- FontAwesome Pro/Free Icons CDN -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        @media print {
+            .no-print { display: none !important; }
+            body { background: #ffffff !important; color: #000000 !important; }
+        }
+        /* Custom date picker dark style */
+        input[type="date"]::-webkit-calendar-picker-indicator {
+            filter: invert(0.8);
+            cursor: pointer;
+        }
+    </style>
+    <!-- PWA Manifest & Mobile Icons -->
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#0b0f19">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="apple-touch-icon" href="/static/icon-192.svg">
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col font-sans antialiased selection:bg-indigo-500 selection:text-white pb-12">
+
+    <!-- Top Navigation Header -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full pt-6">
+        <header class="flex flex-col md:flex-row items-start md:items-center justify-between pb-6 border-b border-slate-800/80 gap-4">
+            
+            <div class="flex items-center gap-3">
+                <a href="/analytics" class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-indigo-600 to-purple-600 flex items-center justify-center text-white shadow-lg shadow-indigo-500/25 transition-transform hover:scale-105" title="Voltar ao Analytics">
+                    <i class="fa-solid fa-shield-halved text-lg"></i>
+                </a>
+                <div>
+                    <div class="flex items-center gap-2">
+                        <h1 class="text-xl sm:text-2xl font-black tracking-tight text-white">Auditoria & Logs Operacionais</h1>
+                        <span class="px-2 py-0.5 rounded-full text-[10px] font-black tracking-wider uppercase bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">Módulo Gerencial</span>
+                    </div>
+                    <p class="text-xs text-slate-400 mt-0.5">Rastreabilidade de reajustes de tarifas, ICMS, recalibrações e monitor de estabilidade do ESP32</p>
+                </div>
+            </div>
+
+            <!-- Botões de Ação do Topo -->
+            <div class="flex flex-wrap items-center gap-1.5 sm:gap-2 w-full md:w-auto no-print">
+                <a href="/analytics" class="flex items-center gap-1.5 bg-slate-900 hover:bg-slate-800 text-purple-300 border border-slate-800 px-2.5 py-1.5 rounded-xl text-xs font-semibold transition-all hover:border-purple-500/30 shadow-sm">
+                    <i class="fa-solid fa-chart-pie text-purple-400"></i>
+                    <span>Analytics</span>
+                </a>
+                <a href="/" class="flex items-center gap-1.5 bg-slate-900 hover:bg-slate-800 text-slate-200 border border-slate-800 px-2.5 py-1.5 rounded-xl text-xs font-semibold transition-all hover:border-slate-700 shadow-sm" title="Voltar ao Painel">
+                    <i class="fa-solid fa-arrow-left text-slate-400"></i>
+                    <span>Voltar</span>
+                </a>
+                <button onclick="carregarAuditoria(1)" class="flex items-center gap-1.5 bg-slate-900 hover:bg-slate-800 text-cyan-300 border border-slate-800 px-2.5 py-1.5 rounded-xl text-xs font-semibold transition-all hover:border-cyan-500/30 shadow-sm">
+                    <i class="fa-solid fa-arrows-rotate text-cyan-400"></i>
+                    <span>Atualizar</span>
+                </button>
+                <button id="btn-sync-sd" onclick="sincronizarBackupSD()" class="flex items-center gap-1.5 bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-300 border border-emerald-500/30 px-2.5 py-1.5 rounded-xl text-xs font-semibold transition-all hover:border-emerald-400 shadow-sm" title="Sincronizar arquivos históricos do Micro SD do ESP32">
+                    <i class="fa-solid fa-sd-card text-emerald-400" id="icon-sync-sd"></i>
+                    <span id="btn-sync-txt">Sincronizar SD</span>
+                </button>
+                <button id="btn-restore-sd" onclick="restaurarContagemSD()" class="flex items-center gap-1.5 bg-amber-600/20 hover:bg-amber-600/30 text-amber-300 border border-amber-500/30 px-2.5 py-1.5 rounded-xl text-xs font-semibold transition-all hover:border-amber-400 shadow-sm" title="Recuperar e injetar o total acumulado do Banco de Dados SQLite de volta no Micro SD do ESP32">
+                    <i class="fa-solid fa-upload text-amber-400" id="icon-restore-sd"></i>
+                    <span id="btn-restore-txt">Recuperar para SD</span>
+                </button>
+                <button onclick="exportarAuditoriaCSV()" class="flex items-center gap-1.5 bg-indigo-600/20 hover:bg-indigo-600/30 text-indigo-300 border border-indigo-500/30 px-2.5 py-1.5 rounded-xl text-xs font-semibold transition-all hover:border-indigo-400 shadow-sm" title="Baixar relatório completo filtrado em planilha CSV / Excel">
+                    <i class="fa-solid fa-file-excel text-indigo-400"></i>
+                    <span id="btn-export-txt">Exportar CSV</span>
+                </button>
+                <button id="themeToggle" class="p-1.5 sm:p-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-slate-300 hover:text-white transition-colors border border-slate-800 shadow-sm" title="Alternar Tema Claro / Escuro">
+                    <i class="fa-solid fa-moon dark:hidden text-amber-400 text-xs sm:text-sm"></i>
+                    <i class="fa-solid fa-sun hidden dark:block text-amber-300 text-xs sm:text-sm"></i>
+                </button>
+            </div>
+        </header>
+
+        <!-- BANNER DE ALERTA: Falha no Cartão Micro SD -->
+        <div id="banner-sd-falha" class="hidden mt-4 flex items-start gap-3 bg-rose-600/15 border border-rose-500/40 text-rose-200 rounded-2xl px-5 py-4 shadow-lg">
+            <i class="fa-solid fa-triangle-exclamation text-rose-400 text-lg mt-0.5 shrink-0 animate-pulse"></i>
+            <div class="flex-1 min-w-0">
+                <p class="font-bold text-sm text-rose-300">⚠ Falha no Cartão Micro SD do ESP32</p>
+                <p class="text-xs text-rose-300/80 mt-0.5">O ESP32 reportou que o Cartão Micro SD está <strong>inacessível</strong>. Os dados de energia estão sendo mantidos temporariamente na memória de emergência (RAM/NVS). Verifique o cartão fisicamente. Após substituição, utilize o botão <strong>"Recuperar para SD"</strong>.</p>
+            </div>
+            <div class="flex items-center gap-2 shrink-0">
+                <button onclick="document.getElementById('audit-filtro-categoria').value='SD_FALHA'; resetarPaginaECarregar();" class="text-[11px] font-bold bg-rose-600/30 hover:bg-rose-600/50 border border-rose-500/40 text-rose-200 px-3 py-1.5 rounded-xl transition-all whitespace-nowrap">Ver Logs</button>
+                <button onclick="document.getElementById('banner-sd-falha').classList.add('hidden')" class="text-rose-400 hover:text-white p-1" title="Fechar alerta"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+        </div>
+
+        <!-- 4 Cards de Resumo Gerencial de Auditoria -->
+        <section class="grid grid-cols-2 md:grid-cols-4 gap-4 mt-6">
+            
+            <!-- Card 1: Quedas do ESP32 -->
+            <div class="bg-slate-900/80 border border-slate-800 p-4 sm:p-5 rounded-2xl relative overflow-hidden group hover:border-amber-500/30 transition-all">
+                <div class="flex items-center justify-between">
+                    <span class="text-[11px] font-semibold uppercase tracking-wider text-slate-400">Quedas ESP32</span>
+                    <i class="fa-solid fa-triangle-exclamation text-amber-400 text-sm"></i>
+                </div>
+                <h3 class="text-2xl sm:text-3xl font-black text-amber-400 mt-1" id="audit-kpi-quedas">0</h3>
+                <span class="text-[10px] text-slate-500 block mt-1 truncate" id="audit-kpi-ultima-queda">Nenhuma queda registrada</span>
+            </div>
+
+            <!-- Card 2: Status do ESP32 -->
+            <div class="bg-slate-900/80 border border-slate-800 p-4 sm:p-5 rounded-2xl relative overflow-hidden group hover:border-emerald-500/30 transition-all">
+                <div class="flex items-center justify-between">
+                    <span class="text-[11px] font-semibold uppercase tracking-wider text-slate-400">Status Atual ESP32</span>
+                    <i class="fa-solid fa-wifi text-emerald-400 text-sm"></i>
+                </div>
+                <div class="flex items-center gap-2 mt-1">
+                    <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" id="audit-esp-status-dot"></span>
+                    <h3 class="text-base sm:text-lg font-bold text-white capitalize" id="audit-esp-status-txt">Carregando...</h3>
+                </div>
+                <span class="text-[10px] text-slate-500 block mt-1" id="audit-esp-ip-txt">IP: --</span>
+            </div>
+
+            <!-- Card 3: Alterações de Tarifas & Bandeiras -->
+            <div class="bg-slate-900/80 border border-slate-800 p-4 sm:p-5 rounded-2xl relative overflow-hidden group hover:border-purple-500/30 transition-all">
+                <div class="flex items-center justify-between">
+                    <span class="text-[11px] font-semibold uppercase tracking-wider text-slate-400">Alterações de Tarifas</span>
+                    <i class="fa-solid fa-receipt text-purple-400 text-sm"></i>
+                </div>
+                <h3 class="text-2xl sm:text-3xl font-black text-purple-300 mt-1" id="audit-kpi-tarifas">0</h3>
+                <span class="text-[10px] text-slate-500 block mt-1 truncate" id="audit-kpi-ultima-tarifa">Reajustes e bandeiras</span>
+            </div>
+
+            <!-- Card 4: Total Geral de Eventos -->
+            <div class="bg-slate-900/80 border border-slate-800 p-4 sm:p-5 rounded-2xl relative overflow-hidden group hover:border-cyan-500/30 transition-all">
+                <div class="flex items-center justify-between">
+                    <span class="text-[11px] font-semibold uppercase tracking-wider text-slate-400">Total de Eventos</span>
+                    <i class="fa-solid fa-list-check text-cyan-400 text-sm"></i>
+                </div>
+                <h3 class="text-2xl sm:text-3xl font-black text-cyan-300 mt-1" id="audit-kpi-total-logs">0</h3>
+                <span class="text-[10px] text-slate-500 block mt-1">Base histórica auditável</span>
+            </div>
+
+        </section>
+
+        <!-- Barra de Ferramentas: Filtros de Categoria, Nível, Busca e Período de Data -->
+        <section class="bg-slate-900/80 border border-slate-800 p-4 sm:p-5 rounded-2xl flex flex-col gap-3.5 mt-6 no-print">
+            
+            <!-- Linha 1: Busca e Filtros Rápidos -->
+            <div class="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3">
+                
+                <!-- Campo de Busca com debounce -->
+                <div class="relative flex-1 min-w-[240px]">
+                    <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500 text-xs"></i>
+                    <input type="text" id="audit-busca-input" oninput="agendarBusca()" placeholder="Buscar por ação, valor, IP ou detalhe..." 
+                        class="w-full bg-slate-950 border border-slate-800 rounded-xl pl-9 pr-3.5 py-2 text-xs text-white placeholder-slate-500 focus:ring-2 focus:ring-indigo-500 outline-none transition-all">
+                </div>
+
+                <div class="flex flex-wrap items-center gap-2.5">
+                    <!-- Filtro por Categoria -->
+                    <div class="flex items-center gap-1.5">
+                        <span class="text-xs text-slate-400 font-medium whitespace-nowrap"><i class="fa-solid fa-tag text-slate-500 mr-1"></i>Categoria:</span>
+                        <select id="audit-filtro-categoria" onchange="resetarPaginaECarregar()" class="bg-slate-950 border border-slate-800 text-slate-300 text-xs px-3 py-2 rounded-xl outline-none focus:ring-2 focus:ring-indigo-500">
+                            <option value="TODAS">Todas</option>
+                            <option value="SD_FALHA">🔴 Falha Micro SD</option>
+                            <option value="BACKUP_SD">💾 Backup Micro SD</option>
+                            <option value="ESP32_CONEXAO">Conexão & Quedas ESP</option>
+                            <option value="BANDEIRA">Bandeiras Tarifárias</option>
+                            <option value="ICMS">Faixas ICMS SP</option>
+                            <option value="CONFIG">Tarifa & Tributos</option>
+                            <option value="CICLO">Ciclo & Faturas</option>
+                        </select>
+                    </div>
+
+                    <!-- Filtro por Nível -->
+                    <div class="flex items-center gap-1.5">
+                        <span class="text-xs text-slate-400 font-medium whitespace-nowrap"><i class="fa-solid fa-layer-group text-slate-500 mr-1"></i>Nível:</span>
+                        <select id="audit-filtro-nivel" onchange="resetarPaginaECarregar()" class="bg-slate-950 border border-slate-800 text-slate-300 text-xs px-3 py-2 rounded-xl outline-none focus:ring-2 focus:ring-indigo-500">
+                            <option value="TODOS">Todos</option>
+                            <option value="INFO">Informativo (INFO)</option>
+                            <option value="AVISO">Avisos / Quedas (AVISO)</option>
+                            <option value="CRITICO">Crítico (CRÍTICO)</option>
+                        </select>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Linha 2: Filtro por Período de Data & Limite por Página -->
+            <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 pt-3 border-t border-slate-800/80">
+                
+                <!-- Filtro de Datas: De / Até -->
+                <div class="flex flex-wrap items-center gap-2">
+                    <span class="text-xs text-slate-400 font-medium whitespace-nowrap"><i class="fa-regular fa-calendar text-slate-500 mr-1"></i>Período:</span>
+                    
+                    <div class="flex items-center gap-1.5 bg-slate-950 border border-slate-800 rounded-xl px-2.5 py-1 text-xs">
+                        <span class="text-slate-500 text-[11px]">De:</span>
+                        <input type="date" id="audit-filtro-inicio" onchange="resetarPaginaECarregar()" class="bg-transparent text-slate-200 text-xs outline-none cursor-pointer">
+                    </div>
+
+                    <div class="flex items-center gap-1.5 bg-slate-950 border border-slate-800 rounded-xl px-2.5 py-1 text-xs">
+                        <span class="text-slate-500 text-[11px]">Até:</span>
+                        <input type="date" id="audit-filtro-fim" onchange="resetarPaginaECarregar()" class="bg-transparent text-slate-200 text-xs outline-none cursor-pointer">
+                    </div>
+
+                    <button onclick="limparFiltroDatas()" class="px-2.5 py-1 rounded-xl text-xs bg-slate-800/80 hover:bg-slate-800 text-slate-300 border border-slate-700 hover:text-white transition-all flex items-center gap-1" title="Limpar datas">
+                        <i class="fa-solid fa-xmark text-slate-400"></i>
+                        <span>Limpar</span>
+                    </button>
+                </div>
+
+                <!-- Quantidade por Página & Badge de Status -->
+                <div class="flex items-center justify-between sm:justify-end gap-3">
+                    <div class="flex items-center gap-1.5">
+                        <span class="text-xs text-slate-400 whitespace-nowrap">Mostrar:</span>
+                        <select id="audit-limite-pagina" onchange="alterarLimite()" class="bg-slate-950 border border-slate-800 text-slate-300 text-xs px-2.5 py-1.5 rounded-xl outline-none focus:ring-2 focus:ring-indigo-500">
+                            <option value="30" selected>30 por página</option>
+                            <option value="50">50 por página</option>
+                            <option value="100">100 por página</option>
+                        </select>
+                    </div>
+
+                    <span id="badge-total-filtrados" class="text-xs px-2.5 py-1 rounded-full bg-slate-800 border border-slate-700 text-indigo-300 font-medium whitespace-nowrap">
+                        0 eventos encontrados
+                    </span>
+                </div>
+
+            </div>
+
+        </section>
+
+        <!-- Tabela Gerencial de Auditoria -->
+        <section class="border border-slate-800 rounded-2xl overflow-hidden bg-slate-900/80 shadow-sm mt-6">
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse text-xs">
+                    <thead>
+                        <tr class="border-b border-slate-800 text-slate-400 font-semibold bg-slate-950/70">
+                            <th class="p-3.5 whitespace-nowrap">Data / Hora</th>
+                            <th class="p-3.5 whitespace-nowrap">Categoria</th>
+                            <th class="p-3.5 whitespace-nowrap">Ação Realizada</th>
+                            <th class="p-3.5">Detalhamento Técnico / Valores Registrados</th>
+                            <th class="p-3.5 text-center whitespace-nowrap">Nível</th>
+                            <th class="p-3.5 whitespace-nowrap">Origem</th>
+                        </tr>
+                    </thead>
+                    <tbody id="audit-tbody" class="divide-y divide-slate-800/60">
+                        <tr>
+                            <td colspan="6" class="p-8 text-center text-slate-500">
+                                <i class="fa-solid fa-spinner fa-spin mr-2"></i> Carregando registros de auditoria do banco de dados...
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Barra Inferior de Paginação -->
+            <div class="p-3.5 sm:p-4 bg-slate-950/60 border-t border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs no-print">
+                <div class="text-slate-400 font-medium" id="info-paginacao">
+                    Mostrando registros <span class="text-white font-bold" id="pag-inicio">0</span> a <span class="text-white font-bold" id="pag-fim">0</span> de <span class="text-indigo-400 font-bold" id="pag-total">0</span> eventos
+                </div>
+
+                <div class="flex items-center gap-1.5">
+                    <button id="btn-pag-primeira" onclick="mudarPagina(1)" disabled class="px-2.5 py-1.5 rounded-xl border border-slate-800 bg-slate-900 text-slate-400 hover:text-white hover:bg-slate-800 disabled:opacity-40 disabled:cursor-not-allowed transition-all" title="Primeira Página">
+                        <i class="fa-solid fa-angles-left"></i>
+                    </button>
+                    <button id="btn-pag-anterior" onclick="mudarPagina(paginaAtual - 1)" disabled class="px-3 py-1.5 rounded-xl border border-slate-800 bg-slate-900 text-slate-400 hover:text-white hover:bg-slate-800 disabled:opacity-40 disabled:cursor-not-allowed transition-all flex items-center gap-1.5">
+                        <i class="fa-solid fa-angle-left"></i>
+                        <span>Anterior</span>
+                    </button>
+                    
+                    <span class="px-3 py-1.5 rounded-xl bg-indigo-500/10 border border-indigo-500/20 text-indigo-300 font-bold text-xs" id="indicador-pagina">
+                        Página 1 de 1
+                    </span>
+
+                    <button id="btn-pag-proxima" onclick="mudarPagina(paginaAtual + 1)" disabled class="px-3 py-1.5 rounded-xl border border-slate-800 bg-slate-900 text-slate-400 hover:text-white hover:bg-slate-800 disabled:opacity-40 disabled:cursor-not-allowed transition-all flex items-center gap-1.5">
+                        <span>Próxima</span>
+                        <i class="fa-solid fa-angle-right"></i>
+                    </button>
+                    <button id="btn-pag-ultima" onclick="mudarPagina(totalPaginas)" disabled class="px-2.5 py-1.5 rounded-xl border border-slate-800 bg-slate-900 text-slate-400 hover:text-white hover:bg-slate-800 disabled:opacity-40 disabled:cursor-not-allowed transition-all" title="Última Página">
+                        <i class="fa-solid fa-angles-right"></i>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+    </div>
+
+    <!-- Scripts de Auditoria com Paginação de 30 em 30 e Filtros no Backend -->
+    <script>
+        let paginaAtual = 1;
+        let totalPaginas = 1;
+        let limiteAtual = 30;
+        let totalFiltrados = 0;
+        let timeoutBusca = null;
+
+        function aplicarTema(tema) {
+            try {
+                const htmlElement = document.documentElement;
+                if (tema === 'light') {
+                    htmlElement.classList.remove('dark');
+                    localStorage.setItem('blackburn_theme', 'light');
+                } else {
+                    htmlElement.classList.add('dark');
+                    localStorage.setItem('blackburn_theme', 'dark');
+                }
+            } catch (e) {}
+        }
+
+        const themeToggleBtn = document.getElementById('themeToggle');
+        if (themeToggleBtn) {
+            themeToggleBtn.addEventListener('click', () => {
+                const isDark = document.documentElement.classList.contains('dark');
+                aplicarTema(isDark ? 'light' : 'dark');
+            });
+        }
+        aplicarTema(localStorage.getItem('blackburn_theme') || 'dark');
+
+        document.addEventListener('DOMContentLoaded', () => {
+            carregarAuditoria(1);
+            verificarStatusSD();
+            // Verifica o status do SD a cada 30 segundos
+            setInterval(verificarStatusSD, 30000);
+        });
+
+        function agendarBusca() {
+            clearTimeout(timeoutBusca);
+            timeoutBusca = setTimeout(() => {
+                resetarPaginaECarregar();
+            }, 350);
+        }
+
+        function resetarPaginaECarregar() {
+            paginaAtual = 1;
+            carregarAuditoria(1);
+        }
+
+        function alterarLimite() {
+            limiteAtual = parseInt(document.getElementById('audit-limite-pagina').value) || 30;
+            resetarPaginaECarregar();
+        }
+
+        function limparFiltroDatas() {
+            document.getElementById('audit-filtro-inicio').value = '';
+            document.getElementById('audit-filtro-fim').value = '';
+            resetarPaginaECarregar();
+        }
+
+        // Verifica o status do SD via API e exibe ou esconde o banner de alerta
+        async function verificarStatusSD() {
+            try {
+                const res = await fetch('/api/backup-sd/status');
+                const data = await res.json();
+                // O endpoint de status do SD não retorna sd_status diretamente,
+                // então consultamos o endpoint de dados do painel que inclui info_esp
+                const resMain = await fetch('/api/dados');
+                const dataMain = await resMain.json();
+                const sdStatus = dataMain?.esp?.sd_status || 'DESCONHECIDO';
+                const banner = document.getElementById('banner-sd-falha');
+                if (banner) {
+                    if (sdStatus === 'FALHA') {
+                        banner.classList.remove('hidden');
+                    } else if (sdStatus === 'OK') {
+                        banner.classList.add('hidden');
+                    }
+                }
+            } catch (e) {
+                // Silencia erros de rede para não poluir o console
+            }
+        }
+
+        function mudarPagina(novaPagina) {
+            if (novaPagina < 1 || novaPagina > totalPaginas || novaPagina === paginaAtual) return;
+            paginaAtual = novaPagina;
+            carregarAuditoria(novaPagina);
+            // Rola suavemente para o início da tabela
+            window.scrollTo({ top: 200, behavior: 'smooth' });
+        }
+
+        async function carregarAuditoria(pagina = 1) {
+            paginaAtual = pagina;
+            const cat = document.getElementById('audit-filtro-categoria').value;
+            const niv = document.getElementById('audit-filtro-nivel').value;
+            const busca = document.getElementById('audit-busca-input').value.trim();
+            const dataIni = document.getElementById('audit-filtro-inicio').value;
+            const dataFim = document.getElementById('audit-filtro-fim').value;
+            const tbody = document.getElementById('audit-tbody');
+            
+            try {
+                tbody.innerHTML = `<tr><td colspan="6" class="p-8 text-center text-slate-500"><i class="fa-solid fa-spinner fa-spin mr-2"></i> Consultando registros de auditoria (página ${pagina})...</td></tr>`;
+                
+                let params = new URLSearchParams({
+                    pagina: paginaAtual,
+                    limite: limiteAtual
+                });
+
+                if (cat && cat !== 'TODAS') params.append('categoria', cat);
+                if (niv && niv !== 'TODOS') params.append('nivel', niv);
+                if (busca) params.append('busca', busca);
+                if (dataIni) params.append('data_inicio', dataIni);
+                if (dataFim) params.append('data_fim', dataFim);
+
+                const res = await fetch(`/api/auditoria?${params.toString()}`);
+                const data = await res.json();
+                
+                const logs = data.logs || [];
+                
+                // Fallback robusto para total_filtrados e total_paginas
+                if (typeof data.total_filtrados === 'number' && data.total_filtrados > 0) {
+                    totalFiltrados = data.total_filtrados;
+                } else if (typeof data.total_registros === 'number' && data.total_registros > 0) {
+                    totalFiltrados = data.total_registros;
+                } else {
+                    totalFiltrados = logs.length;
+                }
+
+                totalPaginas = data.total_paginas || Math.max(1, Math.ceil(totalFiltrados / limiteAtual));
+                paginaAtual = data.pagina_atual || 1;
+
+                // Atualiza KPIs globais
+                if (data.kpis) {
+                    document.getElementById('audit-kpi-quedas').innerText = data.kpis.total_quedas;
+                    document.getElementById('audit-kpi-ultima-queda').innerText = data.kpis.ultima_queda;
+                    document.getElementById('audit-kpi-tarifas').innerText = data.kpis.total_alteracoes_tarifas;
+                    document.getElementById('audit-kpi-ultima-tarifa').innerText = data.kpis.ultima_alteracao_tarifa;
+                    document.getElementById('audit-kpi-total-logs').innerText = data.total_registros || totalFiltrados;
+                    
+                    const st = data.kpis.esp32_status_atual;
+                    const isOnline = (st === 'online');
+                    document.getElementById('audit-esp-status-txt').innerText = isOnline ? 'Online' : 'Offline';
+                    document.getElementById('audit-esp-status-txt').className = isOnline ? 'text-base sm:text-lg font-bold text-emerald-400' : 'text-base sm:text-lg font-bold text-rose-400';
+                    document.getElementById('audit-esp-status-dot').className = isOnline ? 'w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse' : 'w-2.5 h-2.5 rounded-full bg-rose-500';
+                    document.getElementById('audit-esp-ip-txt').innerText = `IP: ${data.kpis.esp32_ip_atual || '--'}`;
+                }
+
+                // Atualiza Badges e Controles de Paginação
+                document.getElementById('badge-total-filtrados').innerText = `${totalFiltrados} eventos encontrados`;
+
+                const inicio = (totalFiltrados === 0 || logs.length === 0) ? 0 : ((paginaAtual - 1) * limiteAtual) + 1;
+                const fim = (totalFiltrados === 0 || logs.length === 0) ? 0 : Math.min(paginaAtual * limiteAtual, totalFiltrados);
+                document.getElementById('pag-inicio').innerText = inicio;
+                document.getElementById('pag-fim').innerText = fim;
+                document.getElementById('pag-total').innerText = totalFiltrados;
+                document.getElementById('indicador-pagina').innerText = `Página ${paginaAtual} de ${totalPaginas}`;
+
+                document.getElementById('btn-pag-primeira').disabled = (paginaAtual <= 1);
+                document.getElementById('btn-pag-anterior').disabled = (paginaAtual <= 1);
+                document.getElementById('btn-pag-proxima').disabled = (paginaAtual >= totalPaginas);
+                document.getElementById('btn-pag-ultima').disabled = (paginaAtual >= totalPaginas);
+
+                // Renderiza linhas da tabela
+                if (logs.length === 0) {
+                    tbody.innerHTML = `<tr><td colspan="6" class="p-8 text-center text-slate-500">Nenhum evento de auditoria localizado com os filtros selecionados.</td></tr>`;
+                    return;
+                }
+
+                tbody.innerHTML = logs.map(l => {
+                    let badgeCat = `<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-slate-800 text-slate-300 border border-slate-700">${l.categoria}</span>`;
+                    if (l.categoria === 'ESP32_CONEXAO') {
+                        badgeCat = `<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-cyan-500/10 text-cyan-400 border border-cyan-500/30"><i class="fa-solid fa-wifi mr-1"></i> Conexão ESP</span>`;
+                    } else if (l.categoria === 'BANDEIRA') {
+                        badgeCat = `<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-500/10 text-amber-400 border border-amber-500/30"><i class="fa-solid fa-flag mr-1"></i> Bandeira</span>`;
+                    } else if (l.categoria === 'ICMS') {
+                        badgeCat = `<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/30"><i class="fa-solid fa-landmark mr-1"></i> ICMS SP</span>`;
+                    } else if (l.categoria === 'CICLO') {
+                        badgeCat = `<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-purple-500/10 text-purple-300 border border-purple-500/30"><i class="fa-solid fa-calendar-check mr-1"></i> Ciclo</span>`;
+                    } else if (l.categoria === 'CONFIG') {
+                        badgeCat = `<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-indigo-500/10 text-indigo-300 border border-indigo-500/30"><i class="fa-solid fa-sliders mr-1"></i> Config</span>`;
+                    } else if (l.categoria === 'BACKUP_SD') {
+                        badgeCat = `<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/30"><i class="fa-solid fa-sd-card mr-1"></i> Backup SD</span>`;
+                    } else if (l.categoria === 'SD_FALHA') {
+                        badgeCat = `<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-rose-500/15 text-rose-400 border border-rose-500/40"><i class="fa-solid fa-triangle-exclamation mr-1"></i> Falha SD</span>`;
+                    }
+
+                    let badgeNivel = `<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-slate-800 text-slate-300">INFO</span>`;
+                    if (l.nivel === 'AVISO') {
+                        badgeNivel = `<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30">AVISO</span>`;
+                    } else if (l.nivel === 'CRITICO') {
+                        badgeNivel = `<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-rose-500/20 text-rose-300 border border-rose-500/30">CRÍTICO</span>`;
+                    }
+
+                    return `
+                        <tr class="hover:bg-slate-800/40 transition-colors">
+                            <td class="p-3.5 text-slate-400 font-mono text-[11px] whitespace-nowrap">${l.timestamp}</td>
+                            <td class="p-3.5 whitespace-nowrap">${badgeCat}</td>
+                            <td class="p-3.5 font-semibold text-white whitespace-nowrap">${l.acao}</td>
+                            <td class="p-3.5 text-slate-300 leading-relaxed text-xs">${l.detalhes}</td>
+                            <td class="p-3.5 text-center whitespace-nowrap">${badgeNivel}</td>
+                            <td class="p-3.5 text-slate-400 text-[11px] whitespace-nowrap">${l.origem || 'Sistema'}</td>
+                        </tr>
+                    `;
+                }).join('');
+
+            } catch (err) {
+                console.error("Erro ao carregar auditoria:", err);
+                tbody.innerHTML = `<tr><td colspan="6" class="p-8 text-center text-rose-400 font-semibold">Falha ao carregar registros de auditoria da API.</td></tr>`;
+            }
+        }
+
+        async function exportarAuditoriaCSV() {
+            const btnTxt = document.getElementById('btn-export-txt');
+            const textoOriginal = btnTxt.innerText;
+            btnTxt.innerText = "Gerando CSV...";
+
+            try {
+                const cat = document.getElementById('audit-filtro-categoria').value;
+                const niv = document.getElementById('audit-filtro-nivel').value;
+                const busca = document.getElementById('audit-busca-input').value.trim();
+                const dataIni = document.getElementById('audit-filtro-inicio').value;
+                const dataFim = document.getElementById('audit-filtro-fim').value;
+
+                let params = new URLSearchParams({
+                    exportar: 1
+                });
+
+                if (cat && cat !== 'TODAS') params.append('categoria', cat);
+                if (niv && niv !== 'TODOS') params.append('nivel', niv);
+                if (busca) params.append('busca', busca);
+                if (dataIni) params.append('data_inicio', dataIni);
+                if (dataFim) params.append('data_fim', dataFim);
+
+                const res = await fetch(`/api/auditoria?${params.toString()}`);
+                const data = await res.json();
+                const logsExportar = data.logs || [];
+
+                if (logsExportar.length === 0) {
+                    alert("Nenhum registro de auditoria correspondente aos filtros para exportação.");
+                    return;
+                }
+
+                let csv = "\uFEFF";
+                csv += "ID;Data/Hora;Categoria;Acao;Detalhes;Nivel;Origem\n";
+
+                logsExportar.forEach(l => {
+                    const det = (l.detalhes || "").replace(/"/g, '""');
+                    const ac = (l.acao || "").replace(/"/g, '""');
+                    csv += `${l.id};"${l.timestamp}";"${l.categoria}";"${ac}";"${det}";"${l.nivel}";"${l.origem}"\n`;
+                });
+
+                const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+                const link = document.createElement("a");
+                const url = URL.createObjectURL(blob);
+                link.setAttribute("href", url);
+                link.setAttribute("download", `auditoria_blackburn_pulse_${new Date().toISOString().slice(0, 10)}.csv`);
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            } catch (err) {
+                console.error("Erro ao exportar CSV:", err);
+                alert("Ocorreu um erro ao gerar o arquivo CSV de auditoria.");
+            } finally {
+                btnTxt.innerText = textoOriginal;
+            }
+        }
+
+        async function sincronizarBackupSD() {
+            const btn = document.getElementById('btn-sync-sd');
+            const icon = document.getElementById('icon-sync-sd');
+            const txt = document.getElementById('btn-sync-txt');
+            if (!btn) return;
+
+            const txtAntigo = txt.innerText;
+            txt.innerText = "Sincronizando...";
+            icon.className = "fa-solid fa-spinner fa-spin text-emerald-400";
+            btn.disabled = true;
+            btn.classList.add('opacity-75');
+
+            try {
+                const res = await fetch('/api/backup-sd/sincronizar', { method: 'POST' });
+                const data = await res.json();
+                if (data.status === 'sucesso') {
+                    alert(`✓ Sincronização Concluída com Sucesso!\n\n• Alvo: ESP32 (${data.esp32_ip})\n• Arquivos baixados: ${data.arquivos_baixados ? data.arquivos_baixados.length : 0}\n• Retidos no SD (regra 2 dias): ${data.arquivos_retidos_sd ? data.arquivos_retidos_sd.length : 0}\n• Antigos liberados: ${data.arquivos_apagados_sd ? data.arquivos_apagados_sd.length : 0}`);
+                    carregarAuditoria(1);
+                } else {
+                    alert(`! Aviso na sincronização:\n${data.mensagem || 'Não foi possível contatar o ESP32'}`);
+                }
+            } catch (e) {
+                alert(`✗ Erro na requisição: ${e.message}`);
+            } finally {
+                txt.innerText = txtAntigo;
+                icon.className = "fa-solid fa-sd-card text-emerald-400";
+                btn.disabled = false;
+                btn.classList.remove('opacity-75');
+            }
+        }
+
+        async function restaurarContagemSD() {
+            const btn = document.getElementById('btn-restore-sd');
+            const icon = document.getElementById('icon-restore-sd');
+            const txt = document.getElementById('btn-restore-txt');
+            if (!btn) return;
+
+            const confirmar = confirm(
+                "ATENÇÃO: Deseja enviar o valor acumulado no banco de dados SQLite para o ESP32?\n\n" +
+                "Isso gravará a contagem oficial de pulsos diretamente no arquivo /pulsos.txt do Micro SD e na memória do ESP32.\n" +
+                "Utilize esta função caso tenha trocado o cartão de memória ou necessite restaurar os dados após uma manutenção."
+            );
+            if (!confirmar) return;
+
+            const txtAntigo = txt.innerText;
+            txt.innerText = "Restaurando...";
+            icon.className = "fa-solid fa-spinner fa-spin text-amber-400";
+            btn.disabled = true;
+            btn.classList.add('opacity-75');
+
+            try {
+                const res = await fetch('/api/backup-sd/restaurar-esp32', { method: 'POST' });
+                const data = await res.json();
+                if (data.status === 'sucesso') {
+                    alert(`✓ Restauração Realizada com Sucesso!\n\n${data.mensagem}\n• Total de Pulsos restaurados: ${data.pulsos}`);
+                    carregarAuditoria(1);
+                } else {
+                    alert(`! Aviso na restauração:\n${data.mensagem || 'Falha ao contatar o ESP32'}`);
+                }
+            } catch (e) {
+                alert(`✗ Erro na requisição: ${e.message}`);
+            } finally {
+                txt.innerText = txtAntigo;
+                icon.className = "fa-solid fa-upload text-amber-400";
+                btn.disabled = false;
+                btn.classList.remove('opacity-75');
+            }
+        }
+    </script>
+</body>
+</html>

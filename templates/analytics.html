@@ -1,0 +1,701 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blackburn-Pulse - Analytics & Curva de Consumo</title>
+    <!-- Script de inicialização antecipada de tema (evita flash) -->
+    <script>
+        (function() {
+            var t = localStorage.getItem('blackburn_theme');
+            if (t === 'light') {
+                document.documentElement.classList.remove('dark');
+            } else {
+                document.documentElement.classList.add('dark');
+            }
+        })();
+    </script>
+    <link rel="stylesheet" href="/static/theme.css">
+
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        slate: { 950: '#0b0f19' }
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- FontAwesome Pro/Free Icons CDN -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        @media print {
+            .no-print { display: none !important; }
+            body { background: #ffffff !important; color: #000000 !important; }
+            .print-card { border: 1px solid #ccc !important; background: #fff !important; color: #000 !important; }
+        }
+    </style>
+    <!-- PWA Manifest & Mobile Icons -->
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#0b0f19">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="apple-touch-icon" href="/static/icon-192.svg">
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col font-sans antialiased selection:bg-purple-500 selection:text-white pb-12">
+
+    <!-- Top Navigation Header -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full pt-6">
+        <header class="flex flex-col xl:flex-row items-start xl:items-center justify-between pb-6 border-b border-slate-800/80 gap-4">
+            
+            <div class="flex items-center gap-3">
+                <a href="/" class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-purple-600 to-indigo-500 flex items-center justify-center text-white shadow-lg shadow-purple-500/25 transition-transform hover:scale-105 shrink-0" title="Voltar ao Painel Principal">
+                    <i class="fa-solid fa-bolt-lightning text-lg"></i>
+                </a>
+                <div>
+                    <div class="flex items-center gap-2">
+                        <h1 class="text-xl sm:text-2xl font-black tracking-tight text-white">Blackburn-Pulse</h1>
+                        <span class="px-2 py-0.5 rounded-full text-[10px] font-black tracking-wider uppercase bg-purple-500/10 text-purple-400 border border-purple-500/20">Analytics & Relatórios</span>
+                    </div>
+                    <p class="text-xs text-slate-400 mt-0.5">Diagnóstico avançado de consumo, perfil horário das 24 horas, picos e consolidado de faturas</p>
+                </div>
+            </div>
+
+            <!-- Botões de Ação do Topo (100% Linear em Linha Única) -->
+            <div class="flex items-center flex-nowrap gap-2 overflow-x-auto max-w-full no-print py-0.5">
+                <a href="/" class="shrink-0 inline-flex items-center gap-1.5 bg-slate-900 hover:bg-slate-800 text-slate-200 border border-slate-800 px-3 py-2 rounded-xl text-xs font-semibold transition-all hover:border-slate-700 shadow-sm" title="Voltar ao Painel">
+                    <i class="fa-solid fa-arrow-left text-slate-400"></i>
+                    <span>Voltar</span>
+                </a>
+                <a href="/manual" class="shrink-0 inline-flex items-center gap-1.5 bg-slate-900 hover:bg-slate-800 text-cyan-300 border border-slate-800 px-3 py-2 rounded-xl text-xs font-semibold transition-all hover:border-cyan-500/30 shadow-sm" title="Manual do Usuário">
+                    <i class="fa-solid fa-book-open text-cyan-400"></i>
+                    <span>Manual</span>
+                </a>
+                <a href="/auditoria" class="shrink-0 inline-flex items-center gap-1.5 bg-indigo-600/20 hover:bg-indigo-600/30 text-indigo-300 border border-indigo-500/30 px-3 py-2 rounded-xl text-xs font-semibold transition-all hover:border-indigo-400 shadow-sm" title="Auditorias e Logs do Sistema">
+                    <i class="fa-solid fa-clipboard-list text-indigo-400"></i>
+                    <span>Auditoria</span>
+                </a>
+                <button onclick="exportarCSV()" class="shrink-0 inline-flex items-center gap-1.5 bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-300 border border-emerald-500/30 px-3 py-2 rounded-xl text-xs font-semibold transition-all shadow-sm" title="Baixar dados em planilha CSV / Excel">
+                    <i class="fa-solid fa-file-excel text-emerald-400"></i>
+                    <span>Exportar</span>
+                </button>
+                <button onclick="window.print()" class="shrink-0 inline-flex items-center gap-1.5 bg-purple-600/20 hover:bg-purple-600/30 text-purple-300 border border-purple-500/30 px-3 py-2 rounded-xl text-xs font-semibold transition-all shadow-sm" title="Imprimir Relatório">
+                    <i class="fa-solid fa-print text-purple-400"></i>
+                    <span>Imprimir</span>
+                </button>
+                <button id="themeToggle" class="shrink-0 inline-flex items-center justify-center w-8 h-8 rounded-xl bg-slate-900 hover:bg-slate-800 text-slate-300 hover:text-white transition-colors border border-slate-800 shadow-sm" title="Alternar Tema Claro / Escuro">
+                    <i class="fa-solid fa-moon dark:hidden text-amber-400 text-xs sm:text-sm"></i>
+                    <i class="fa-solid fa-sun hidden dark:block text-amber-300 text-xs sm:text-sm"></i>
+                </button>
+            </div>
+        </header>
+
+        <!-- Barra de Filtros de Período -->
+        <section class="bg-slate-900/80 border border-slate-800 rounded-2xl p-4 shadow-sm no-print mt-6">
+            <div class="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4">
+                
+                <!-- Pílulas de Seleção Rápida -->
+                <div class="flex flex-wrap items-center gap-2" id="periodos-container">
+                    <span class="text-xs font-semibold text-slate-400 mr-1 flex items-center gap-1.5">
+                        <i class="fa-solid fa-calendar-days text-purple-400"></i> Período:
+                    </span>
+                    <button onclick="mudarPeriodo('24h')" id="btn-p-24h" class="btn-periodo px-3 py-1.5 rounded-xl text-xs font-medium border border-slate-800 bg-slate-950 text-slate-400 hover:text-white hover:bg-slate-800 transition-all">Hoje (24h)</button>
+                    <button onclick="mudarPeriodo('7d')" id="btn-p-7d" class="btn-periodo px-3 py-1.5 rounded-xl text-xs font-medium border border-slate-800 bg-slate-950 text-slate-400 hover:text-white hover:bg-slate-800 transition-all">Últimos 7 Dias</button>
+                    <button onclick="mudarPeriodo('30d')" id="btn-p-30d" class="btn-periodo px-3 py-1.5 rounded-xl text-xs font-bold border border-purple-500/50 bg-purple-600/20 text-purple-300 shadow-sm transition-all">Últimos 30 Dias</button>
+                    <button onclick="mudarPeriodo('mes_atual')" id="btn-p-mes_atual" class="btn-periodo px-3 py-1.5 rounded-xl text-xs font-medium border border-slate-800 bg-slate-950 text-slate-400 hover:text-white hover:bg-slate-800 transition-all">Mês Atual</button>
+                    <button onclick="mudarPeriodo('ano')" id="btn-p-ano" class="btn-periodo px-3 py-1.5 rounded-xl text-xs font-medium border border-slate-800 bg-slate-950 text-slate-400 hover:text-white hover:bg-slate-800 transition-all">Ano Completo</button>
+                </div>
+
+                <!-- Filtro por Intervalo de Datas -->
+                <div class="flex flex-wrap items-center gap-2 w-full lg:w-auto">
+                    <span class="text-xs text-slate-400 font-medium">De:</span>
+                    <input type="date" id="filtro-data-inicio" class="bg-slate-950 border border-slate-800 text-white text-xs px-2.5 py-1.5 rounded-xl focus:ring-2 focus:ring-purple-500 outline-none">
+                    <span class="text-xs text-slate-400 font-medium">Até:</span>
+                    <input type="date" id="filtro-data-fim" class="bg-slate-950 border border-slate-800 text-white text-xs px-2.5 py-1.5 rounded-xl focus:ring-2 focus:ring-purple-500 outline-none">
+                    <button onclick="aplicarFiltroCustom()" class="bg-purple-600 hover:bg-purple-500 text-white text-xs font-bold px-3 py-1.5 rounded-xl transition-all shadow-md shadow-purple-600/20">
+                        <i class="fa-solid fa-filter mr-1"></i> Filtrar
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Grade de KPIs Resumo do Período (6 Cards) -->
+        <section class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3.5 mt-6">
+            <!-- KPI 1: Consumo Total -->
+            <div class="bg-slate-900/80 border border-slate-800 p-4 rounded-2xl relative overflow-hidden group hover:border-emerald-500/40 transition-all print-card">
+                <p class="text-[11px] font-semibold uppercase tracking-wider text-slate-400">Consumo Período</p>
+                <h3 class="text-xl sm:text-2xl font-black mt-1 text-emerald-400" id="kpi-consumo">0,00 kWh</h3>
+                <span class="text-[10px] text-slate-500 block mt-1">Total medido no filtro</span>
+            </div>
+
+            <!-- KPI 2: Custo Estimado Total -->
+            <div class="bg-slate-900/80 border border-slate-800 p-4 rounded-2xl relative overflow-hidden group hover:border-emerald-500/40 transition-all print-card">
+                <p class="text-[11px] font-semibold uppercase tracking-wider text-slate-400">Custo Total</p>
+                <h3 class="text-xl sm:text-2xl font-black mt-1 text-white" id="kpi-custo">R$ 0,00</h3>
+                <span class="text-[10px] text-emerald-400/90 block mt-1">Impostos por dentro + CIP</span>
+            </div>
+
+            <!-- KPI 3: Horário de Pico das 24 Horas -->
+            <div class="bg-slate-900/80 border border-slate-800 p-4 rounded-2xl relative overflow-hidden group hover:border-amber-500/40 transition-all print-card">
+                <p class="text-[11px] font-semibold uppercase tracking-wider text-slate-400">Horário de Pico</p>
+                <h3 class="text-xs sm:text-sm font-bold mt-1 text-amber-400 leading-tight" id="kpi-pico-hora">-</h3>
+                <span class="text-[10px] text-slate-500 block mt-1">Hora de maior consumo</span>
+            </div>
+
+            <!-- KPI 4: Dia da Semana Mais Consumido -->
+            <div class="bg-slate-900/80 border border-slate-800 p-4 rounded-2xl relative overflow-hidden group hover:border-purple-500/40 transition-all print-card">
+                <p class="text-[11px] font-semibold uppercase tracking-wider text-slate-400">Dia Mais Carregado</p>
+                <h3 class="text-xs sm:text-sm font-bold mt-1 text-purple-300 leading-tight" id="kpi-dia-semana">-</h3>
+                <span class="text-[10px] text-slate-500 block mt-1">Pico semanal residencial</span>
+            </div>
+
+            <!-- KPI 5: Média Diária -->
+            <div class="bg-slate-900/80 border border-slate-800 p-4 rounded-2xl relative overflow-hidden group hover:border-cyan-500/40 transition-all print-card">
+                <p class="text-[11px] font-semibold uppercase tracking-wider text-slate-400">Média Diária</p>
+                <h3 class="text-xs sm:text-sm font-bold mt-1 text-cyan-400 leading-tight" id="kpi-media-diaria">0,00 kWh/dia</h3>
+                <span class="text-[10px] text-slate-500 block mt-1" id="kpi-media-custo">R$ 0,00 / dia</span>
+            </div>
+
+            <!-- KPI 6: ICMS Vigente e Bandeira -->
+            <div class="bg-slate-900/80 border border-slate-800 p-4 rounded-2xl relative overflow-hidden group hover:border-indigo-500/40 transition-all print-card">
+                <p class="text-[11px] font-semibold uppercase tracking-wider text-slate-400">ICMS SP Vigente</p>
+                <div class="mt-1.5">
+                    <span id="badge-icms-status" class="px-2 py-0.5 rounded text-[11px] font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/30">0% Isento</span>
+                </div>
+                <span class="text-[10px] text-slate-400 block mt-1.5" id="kpi-bandeira-nome">Bandeira Verde</span>
+            </div>
+        </section>
+
+        <!-- Grid de Gráficos Analíticos (2x2) -->
+        <section class="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
+
+            <!-- Gráfico 1: Curva de Evolução Temporal (Consumo & Custo) -->
+            <div class="bg-slate-900/80 border border-slate-800 p-5 rounded-2xl shadow-sm print-card">
+                <div class="flex items-center justify-between mb-4">
+                    <div>
+                        <h2 class="text-sm font-bold text-white flex items-center gap-2">
+                            <i class="fa-solid fa-chart-line text-emerald-400"></i>
+                            <span>Evolução de Consumo & Custo no Tempo</span>
+                        </h2>
+                        <p class="text-[11px] text-slate-400">Acompanhamento temporal diário ou horário com valores correspondentes</p>
+                    </div>
+                </div>
+                <div class="h-64 sm:h-72 w-full">
+                    <canvas id="chart-evolucao"></canvas>
+                </div>
+            </div>
+
+            <!-- Gráfico 2: Perfil das 24 Horas do Dia (Curva de Carga Horária) -->
+            <div class="bg-slate-900/80 border border-slate-800 p-5 rounded-2xl shadow-sm print-card">
+                <div class="flex items-center justify-between mb-4">
+                    <div>
+                        <h2 class="text-sm font-bold text-white flex items-center gap-2">
+                            <i class="fa-solid fa-clock text-amber-400"></i>
+                            <span id="titulo-perfil-horario">Perfil das 24 Horas (Curva de Carga Residencial)</span>
+                        </h2>
+                        <p class="text-[11px] text-slate-400" id="desc-perfil-horario">Identificação clara da rotina: Madrugada, Manhã, Tarde e Pico da Noite (18h-22h)</p>
+                    </div>
+                </div>
+                <div class="h-64 sm:h-72 w-full">
+                    <canvas id="chart-perfil-horario"></canvas>
+                </div>
+            </div>
+
+            <!-- Gráfico 3: Distribuição por Dia da Semana -->
+            <div class="bg-slate-900/80 border border-slate-800 p-5 rounded-2xl shadow-sm print-card">
+                <div class="flex items-center justify-between mb-4">
+                    <div>
+                        <h2 class="text-sm font-bold text-white flex items-center gap-2">
+                            <i class="fa-solid fa-calendar-week text-purple-400"></i>
+                            <span>Consumo por Dia da Semana</span>
+                        </h2>
+                        <p class="text-[11px] text-slate-400">Comparativo de Domingo a Sábado para identificar os dias de maior demanda</p>
+                    </div>
+                </div>
+                <div class="h-64 sm:h-72 w-full">
+                    <canvas id="chart-dias-semana"></canvas>
+                </div>
+            </div>
+
+            <!-- Gráfico 4: Histórico Comparativo Mensal -->
+            <div class="bg-slate-900/80 border border-slate-800 p-5 rounded-2xl shadow-sm print-card">
+                <div class="flex items-center justify-between mb-4">
+                    <div>
+                        <h2 class="text-sm font-bold text-white flex items-center gap-2">
+                            <i class="fa-solid fa-chart-column text-cyan-400"></i>
+                            <span>Comparativo Mês a Mês (Histórico 12 Meses)</span>
+                        </h2>
+                        <p class="text-[11px] text-slate-400">Sazonalidade e evolução do consumo e custo ao longo do ano</p>
+                    </div>
+                </div>
+                <div class="h-64 sm:h-72 w-full">
+                    <canvas id="chart-comparativo-mensal"></canvas>
+                </div>
+            </div>
+
+        </section>
+
+        <!-- Seção: Relatório Consolidado de Faturas e Valores Detalhados -->
+        <section class="bg-slate-900/80 border border-slate-800 rounded-2xl p-5 shadow-sm print-card mt-6">
+            <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 border-b border-slate-800 pb-4 mb-4">
+                <div>
+                    <h2 class="text-base font-bold text-white flex items-center gap-2">
+                        <i class="fa-solid fa-file-invoice-dollar text-emerald-400"></i>
+                        <span>Relatório Detalhado de Valores e Faturas</span>
+                    </h2>
+                    <p class="text-xs text-slate-400 mt-0.5">Detalhamento tributário com tributos Enel SP por dentro, ICMS progressivo, bandeira e download de PDF</p>
+                </div>
+                <span id="badge-total-faturas" class="text-xs px-2.5 py-1 rounded-full bg-slate-800 border border-slate-700 text-slate-300 font-medium">0 faturas registradas</span>
+            </div>
+
+            <!-- Tabela Responsiva de Faturas -->
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse text-xs">
+                    <thead>
+                        <tr class="border-b border-slate-800 text-slate-400 font-semibold bg-slate-950/50">
+                            <th class="p-3">Referência</th>
+                            <th class="p-3">Período de Medição</th>
+                            <th class="p-3 text-right">Leitura Inicial</th>
+                            <th class="p-3 text-right">Leitura Final</th>
+                            <th class="p-3 text-right">Consumo (kWh)</th>
+                            <th class="p-3 text-right">Energia (R$)</th>
+                            <th class="p-3 text-right">Bandeira (R$)</th>
+                            <th class="p-3 text-right">ICMS (R$)</th>
+                            <th class="p-3 text-right">PIS/COFINS (R$)</th>
+                            <th class="p-3 text-right">COSIP (R$)</th>
+                            <th class="p-3 text-right font-bold text-emerald-400">Total Fatura</th>
+                            <th class="p-3 text-center no-print">Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tabela-faturas-body" class="divide-y divide-slate-800/60">
+                        <tr>
+                            <td colspan="12" class="p-6 text-center text-slate-500">
+                                <i class="fa-solid fa-spinner fa-spin mr-2"></i> Carregando histórico de faturas...
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+    </div>
+
+    <!-- Scripts da Aplicação Analytics -->
+    <script>
+        let periodoAtual = '30d';
+        let chartEvolucao = null;
+        let chartPerfilHorario = null;
+        let chartDiasSemana = null;
+        let chartComparativoMensal = null;
+        let dadosAtuais = null;
+
+        function aplicarTema(tema) {
+            try {
+                const htmlElement = document.documentElement;
+                const isLight = (tema === 'light');
+                if (isLight) {
+                    htmlElement.classList.remove('dark');
+                    localStorage.setItem('blackburn_theme', 'light');
+                    if (window.Chart) {
+                        Chart.defaults.color = '#475569';
+                        Chart.defaults.scale.grid.color = 'rgba(100, 116, 139, 0.15)';
+                    }
+                } else {
+                    htmlElement.classList.add('dark');
+                    localStorage.setItem('blackburn_theme', 'dark');
+                    if (window.Chart) {
+                        Chart.defaults.color = '#94a3b8';
+                        Chart.defaults.scale.grid.color = 'rgba(148, 163, 184, 0.08)';
+                    }
+                }
+                [chartEvolucao, chartPerfilHorario, chartDiasSemana, chartComparativoMensal].forEach(c => {
+                    if (c) c.update();
+                });
+            } catch (e) {
+                console.warn("Aviso ao aplicar tema:", e);
+            }
+        }
+
+        const themeToggleBtn = document.getElementById('themeToggle');
+        if (themeToggleBtn) {
+            themeToggleBtn.addEventListener('click', () => {
+                const isDark = document.documentElement.classList.contains('dark');
+                aplicarTema(isDark ? 'light' : 'dark');
+            });
+        }
+        aplicarTema(localStorage.getItem('blackburn_theme') || 'dark');
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const hoje = new Date();
+            const dia30Atras = new Date();
+            dia30Atras.setDate(hoje.getDate() - 30);
+            
+            document.getElementById('filtro-data-fim').value = hoje.toISOString().slice(0, 10);
+            document.getElementById('filtro-data-inicio').value = dia30Atras.toISOString().slice(0, 10);
+            
+            carregarAnalytics('30d');
+        });
+
+        function mudarPeriodo(p) {
+            periodoAtual = p;
+            document.querySelectorAll('.btn-periodo').forEach(btn => {
+                btn.className = "btn-periodo px-3 py-1.5 rounded-xl text-xs font-medium border border-slate-800 bg-slate-950 text-slate-400 hover:text-white hover:bg-slate-800 transition-all";
+            });
+            const ativo = document.getElementById(`btn-p-${p}`);
+            if (ativo) {
+                ativo.className = "btn-periodo px-3 py-1.5 rounded-xl text-xs font-bold border border-purple-500/50 bg-purple-600/20 text-purple-300 shadow-sm transition-all";
+            }
+            carregarAnalytics(p);
+        }
+
+        function aplicarFiltroCustom() {
+            const ini = document.getElementById('filtro-data-inicio').value;
+            const fim = document.getElementById('filtro-data-fim').value;
+            if (!ini || !fim) {
+                alert("Por favor, selecione as duas datas (Início e Fim).");
+                return;
+            }
+            periodoAtual = 'custom';
+            document.querySelectorAll('.btn-periodo').forEach(btn => {
+                btn.className = "btn-periodo px-3 py-1.5 rounded-xl text-xs font-medium border border-slate-800 bg-slate-950 text-slate-400 hover:text-white hover:bg-slate-800 transition-all";
+            });
+            carregarAnalytics('custom', ini, fim);
+        }
+
+        async function carregarAnalytics(periodo = '30d', dataIni = '', dataFim = '') {
+            try {
+                let url = `/api/analytics/dados?periodo=${periodo}`;
+                if (periodo === 'custom' && dataIni && dataFim) {
+                    url += `&data_inicio=${dataIni}&data_fim=${dataFim}`;
+                }
+                const res = await fetch(url);
+                const data = await res.json();
+                dadosAtuais = data;
+
+                atualizarKPIs(data.kpis);
+                renderizarGraficoEvolucao(data.grafico_tempo);
+                renderizarGraficoPerfilHorario(data.perfil_horario, periodo);
+                renderizarGraficoDiasSemana(data.dias_semana);
+                renderizarGraficoComparativoMensal(data.comparativo_mensal);
+                renderizarTabelaFaturas(data.faturas);
+            } catch (e) {
+                console.error("Erro ao carregar dados do analytics:", e);
+            }
+        }
+
+        function atualizarKPIs(kpis) {
+            if (!kpis) return;
+            document.getElementById('kpi-consumo').innerText = `${kpis.consumo_total_kwh.toLocaleString('pt-BR', { minimumFractionDigits: 2 })} kWh`;
+            document.getElementById('kpi-custo').innerText = `R$ ${kpis.custo_total_rs.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`;
+            document.getElementById('kpi-pico-hora').innerText = kpis.pico_hora;
+            document.getElementById('kpi-dia-semana').innerText = kpis.dia_semana_pico;
+            document.getElementById('kpi-media-diaria').innerText = `${kpis.media_diaria_kwh.toLocaleString('pt-BR', { minimumFractionDigits: 2 })} kWh/dia`;
+            document.getElementById('kpi-media-custo').innerText = `R$ ${kpis.media_diaria_rs.toLocaleString('pt-BR', { minimumFractionDigits: 2 })} / dia`;
+            
+            const badgeIcms = document.getElementById('badge-icms-status');
+            if (badgeIcms) {
+                badgeIcms.innerText = kpis.icms_faixa || "0% Isento";
+                if (kpis.icms_pct === 0) {
+                    badgeIcms.className = "px-2 py-0.5 rounded text-[11px] font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/30";
+                } else if (kpis.icms_pct <= 12) {
+                    badgeIcms.className = "px-2 py-0.5 rounded text-[11px] font-bold bg-amber-500/10 text-amber-400 border border-amber-500/30";
+                } else {
+                    badgeIcms.className = "px-2 py-0.5 rounded text-[11px] font-bold bg-purple-500/10 text-purple-300 border border-purple-500/30";
+                }
+            }
+            document.getElementById('kpi-bandeira-nome').innerText = kpis.bandeira_nome || "Bandeira Verde";
+        }
+
+        function renderizarGraficoEvolucao(data) {
+            const ctx = document.getElementById('chart-evolucao').getContext('2d');
+            if (chartEvolucao) chartEvolucao.destroy();
+
+            chartEvolucao = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: data.labels,
+                    datasets: [
+                        {
+                            label: 'Consumo (kWh)',
+                            data: data.kwh,
+                            backgroundColor: 'rgba(16, 185, 129, 0.4)',
+                            borderColor: '#10b981',
+                            borderWidth: 1.5,
+                            borderRadius: 6,
+                            yAxisID: 'y'
+                        },
+                        {
+                            label: 'Custo Estimado (R$)',
+                            data: data.custos,
+                            type: 'line',
+                            borderColor: '#8b5cf6',
+                            backgroundColor: 'rgba(139, 92, 246, 0.1)',
+                            borderWidth: 2,
+                            pointRadius: 3,
+                            pointBackgroundColor: '#8b5cf6',
+                            tension: 0.3,
+                            yAxisID: 'y1'
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { labels: { color: '#94a3b8', font: { size: 11 } } },
+                        tooltip: {
+                            callbacks: {
+                                label: ctx => ctx.datasetIndex === 0 ? ` Consumo: ${ctx.raw.toFixed(2)} kWh` : ` Custo: R$ ${ctx.raw.toFixed(2)}`
+                            }
+                        }
+                    },
+                    scales: {
+                        x: { grid: { color: 'rgba(51, 65, 85, 0.3)' }, ticks: { color: '#94a3b8', font: { size: 10 } } },
+                        y: {
+                            position: 'left',
+                            grid: { color: 'rgba(51, 65, 85, 0.3)' },
+                            ticks: { color: '#10b981', font: { size: 10 }, callback: v => `${v} kWh` }
+                        },
+                        y1: {
+                            position: 'right',
+                            grid: { drawOnChartArea: false },
+                            ticks: { color: '#8b5cf6', font: { size: 10 }, callback: v => `R$ ${v}` }
+                        }
+                    }
+                }
+            });
+        }
+
+        function renderizarGraficoPerfilHorario(data, periodo = '30d') {
+            const ctx = document.getElementById('chart-perfil-horario').getContext('2d');
+            if (chartPerfilHorario) chartPerfilHorario.destroy();
+
+            const descEl = document.getElementById('desc-perfil-horario');
+            const titEl = document.getElementById('titulo-perfil-horario');
+            if (descEl && titEl) {
+                if (periodo === '24h') {
+                    titEl.innerText = "Consumo Hora a Hora (Hoje)";
+                    descEl.innerText = "Detalhamento exato de cada hora de hoje (00h às 23h)";
+                } else {
+                    titEl.innerText = "Perfil das 24 Horas (Curva de Carga Média)";
+                    descEl.innerText = "Média de consumo típica por hora do dia no período selecionado";
+                }
+            }
+
+            const coresBarras = data.labels.map((_, idx) => {
+                if (idx >= 18 && idx <= 21) return 'rgba(245, 158, 11, 0.65)';
+                if (idx >= 6 && idx <= 17) return 'rgba(6, 182, 212, 0.5)';
+                return 'rgba(99, 102, 241, 0.45)';
+            });
+
+            chartPerfilHorario = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: data.labels,
+                    datasets: [{
+                        label: periodo === '24h' ? 'Consumo na Hora (kWh)' : 'Média Diária na Hora (kWh)',
+                        data: data.kwh,
+                        backgroundColor: coresBarras,
+                        borderColor: '#f59e0b',
+                        borderWidth: 1,
+                        borderRadius: 5
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                label: ctx => {
+                                    if (periodo === '24h') {
+                                        return ` Consumo nesta hora: ${ctx.raw.toFixed(3)} kWh`;
+                                    } else {
+                                        return ` Média diária nesta hora: ${ctx.raw.toFixed(3)} kWh`;
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: { grid: { color: 'rgba(51, 65, 85, 0.3)' }, ticks: { color: '#94a3b8', font: { size: 10 } } },
+                        y: { grid: { color: 'rgba(51, 65, 85, 0.3)' }, ticks: { color: '#94a3b8', font: { size: 10 } } }
+                    }
+                }
+            });
+        }
+
+        function renderizarGraficoDiasSemana(data) {
+            const ctx = document.getElementById('chart-dias-semana').getContext('2d');
+            if (chartDiasSemana) chartDiasSemana.destroy();
+
+            chartDiasSemana = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: data.labels,
+                    datasets: [{
+                        label: 'Consumo Médio no Dia (kWh)',
+                        data: data.kwh,
+                        backgroundColor: 'rgba(168, 85, 247, 0.45)',
+                        borderColor: '#a855f7',
+                        borderWidth: 1.5,
+                        borderRadius: 8
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                label: ctx => ` Consumo: ${ctx.raw.toFixed(2)} kWh`
+                            }
+                        }
+                    },
+                    scales: {
+                        x: { grid: { color: 'rgba(51, 65, 85, 0.3)' }, ticks: { color: '#94a3b8', font: { size: 10 } } },
+                        y: { grid: { color: 'rgba(51, 65, 85, 0.3)' }, ticks: { color: '#94a3b8', font: { size: 11 } } }
+                    }
+                }
+            });
+        }
+
+        function renderizarGraficoComparativoMensal(data) {
+            const ctx = document.getElementById('chart-comparativo-mensal').getContext('2d');
+            if (chartComparativoMensal) chartComparativoMensal.destroy();
+
+            chartComparativoMensal = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: data.labels,
+                    datasets: [
+                        {
+                            label: 'Consumo (kWh)',
+                            data: data.kwh,
+                            backgroundColor: 'rgba(6, 182, 212, 0.45)',
+                            borderColor: '#06b6d4',
+                            borderWidth: 1.5,
+                            borderRadius: 6,
+                            yAxisID: 'y'
+                        },
+                        {
+                            label: 'Custo Faturado (R$)',
+                            data: data.custos,
+                            type: 'line',
+                            borderColor: '#10b981',
+                            backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                            borderWidth: 2,
+                            pointRadius: 4,
+                            pointBackgroundColor: '#10b981',
+                            tension: 0.3,
+                            yAxisID: 'y1'
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { labels: { color: '#94a3b8', font: { size: 11 } } },
+                        tooltip: {
+                            callbacks: {
+                                label: ctx => ctx.datasetIndex === 0 ? ` Consumo: ${ctx.raw.toFixed(1)} kWh` : ` Custo: R$ ${ctx.raw.toFixed(2)}`
+                            }
+                        }
+                    },
+                    scales: {
+                        x: { grid: { color: 'rgba(51, 65, 85, 0.3)' }, ticks: { color: '#94a3b8', font: { size: 10 } } },
+                        y: {
+                            position: 'left',
+                            grid: { color: 'rgba(51, 65, 85, 0.3)' },
+                            ticks: { color: '#06b6d4', font: { size: 10 }, callback: v => `${v} kWh` }
+                        },
+                        y1: {
+                            position: 'right',
+                            grid: { drawOnChartArea: false },
+                            ticks: { color: '#10b981', font: { size: 10 }, callback: v => `R$ ${v}` }
+                        }
+                    }
+                }
+            });
+        }
+
+        function renderizarTabelaFaturas(faturas) {
+            const tbody = document.getElementById('tabela-faturas-body');
+            const badgeTotal = document.getElementById('badge-total-faturas');
+            if (!faturas || faturas.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="12" class="p-6 text-center text-slate-500">Nenhuma fatura registrada no banco de dados.</td></tr>`;
+                badgeTotal.innerText = "0 faturas registradas";
+                return;
+            }
+
+            badgeTotal.innerText = `${faturas.length} faturas registradas`;
+            tbody.innerHTML = faturas.map(f => {
+                const isAberto = f.tipo === "aberto";
+                const tag = isAberto
+                    ? `<span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-500/10 text-amber-400 border border-amber-500/30 animate-pulse">Em Aberto</span>`
+                    : `<span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-800 text-slate-300 border border-slate-700">Fechada</span>`;
+
+                return `
+                    <tr class="hover:bg-slate-800/40 transition-colors ${isAberto ? 'bg-emerald-950/10' : ''}">
+                        <td class="p-3 font-semibold text-white whitespace-nowrap">
+                            <div class="flex items-center gap-1.5">
+                                <span>${f.mes_referencia}</span>
+                                ${tag}
+                            </div>
+                        </td>
+                        <td class="p-3 text-slate-400 whitespace-nowrap">${f.periodo}</td>
+                        <td class="p-3 text-right text-slate-300 font-mono">${f.leitura_inicial.toFixed(2)}</td>
+                        <td class="p-3 text-right text-slate-300 font-mono">${f.leitura_final.toFixed(2)}</td>
+                        <td class="p-3 text-right font-bold text-white font-mono">${f.consumo_kwh.toFixed(2)}</td>
+                        <td class="p-3 text-right text-slate-300">R$ ${f.bruto_energia.toFixed(2)}</td>
+                        <td class="p-3 text-right text-slate-300">R$ ${f.bruto_bandeira.toFixed(2)}</td>
+                        <td class="p-3 text-right text-slate-300">R$ ${f.icms.toFixed(2)}</td>
+                        <td class="p-3 text-right text-slate-300">R$ ${f.pis_cofins.toFixed(2)}</td>
+                        <td class="p-3 text-right text-slate-300">R$ ${f.cosip.toFixed(2)}</td>
+                        <td class="p-3 text-right font-black text-emerald-400 text-sm">R$ ${f.valor_total.toFixed(2)}</td>
+                        <td class="p-3 text-center whitespace-nowrap no-print">
+                            <a href="${f.pdf_url}" target="_blank" class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold bg-slate-800 hover:bg-slate-700 text-emerald-400 border border-slate-700 transition-all shadow-sm">
+                                <i class="fa-solid fa-file-pdf"></i> PDF
+                            </a>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function exportarCSV() {
+            if (!dadosAtuais || !dadosAtuais.faturas || dadosAtuais.faturas.length === 0) {
+                alert("Nenhum dado disponível para exportação.");
+                return;
+            }
+
+            let csv = "\uFEFF";
+            csv += "Referencia;Periodo;Leitura Inicial;Leitura Final;Consumo (kWh);Energia (R$);Bandeira (R$);ICMS (R$);PIS/COFINS (R$);COSIP (R$);Total Fatura (R$)\n";
+
+            dadosAtuais.faturas.forEach(f => {
+                csv += `"${f.mes_referencia}";"${f.periodo}";${f.leitura_inicial.toFixed(2).replace('.', ',')};${f.leitura_final.toFixed(2).replace('.', ',')};${f.consumo_kwh.toFixed(2).replace('.', ',')};${f.bruto_energia.toFixed(2).replace('.', ',')};${f.bruto_bandeira.toFixed(2).replace('.', ',')};${f.icms.toFixed(2).replace('.', ',')};${f.pis_cofins.toFixed(2).replace('.', ',')};${f.cosip.toFixed(2).replace('.', ',')};${f.valor_total.toFixed(2).replace('.', ',')}\n`;
+            });
+
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement("a");
+            const url = URL.createObjectURL(blob);
+            link.setAttribute("href", url);
+            link.setAttribute("download", `relatorio_faturas_blackburn_pulse_${new Date().toISOString().slice(0, 10)}.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+    </script>
+</body>
+</html>

@@ -162,7 +162,7 @@ def get_auditoria(
 def api_sincronizar_backup_sd(ip: Optional[str] = Query(None)):
     """Executa a sincronização remota do cartão SD do ESP32 com política de retenção dos 2 mais recentes."""
     from sincronizador_backup import sincronizar_backup_sd, DEFAULT_BACKUP_DIR
-    alvo_ip = ip or esp_telemetria.get("ip") or "192.168.200.5"
+    alvo_ip = ip or esp_telemetria.get("ip") or "IP_DO_ESP32"
     resultado = sincronizar_backup_sd(esp32_ip=alvo_ip, destino_dir=DEFAULT_BACKUP_DIR, registrar_auditoria=True)
     return resultado
 
@@ -207,7 +207,7 @@ def api_restaurar_esp32_sd(pulsos: Optional[int] = Query(None)):
         pulsos_alvo = int(pulsos)
     conn.close()
 
-    alvo_ip = esp_telemetria.get("ip") or "192.168.200.5"
+    alvo_ip = esp_telemetria.get("ip") or "IP_DO_ESP32"
     url = f"http://{alvo_ip}/restaurar-pulsos?val={pulsos_alvo}"
     try:
         from sincronizador_backup import HAS_REQUESTS

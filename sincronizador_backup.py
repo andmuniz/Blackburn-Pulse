@@ -82,7 +82,7 @@ def obter_ip_esp32_dinamico(db_path: Path = DB_PATH) -> str:
             log(f"Falha ao consultar IP do banco: {e}", "AVISO")
 
     # 3. Fallback de fábrica
-    return "192.168.200.5"
+    return "IP_DO_ESP32" # para usar dinamicamente
 
 
 def http_get_json(url: str, timeout: int = 10):
@@ -320,7 +320,7 @@ def sincronizar_backup_sd(esp32_ip: str = None, destino_dir: Path = None, regist
 
 def main():
     parser = argparse.ArgumentParser(description="Sincronizador de Backup e Retenção do Micro SD - Blackburn-Pulse")
-    parser.add_argument("--ip", type=str, default=None, help="Endereço IP do ESP32 (ex: 192.168.200.5)")
+    parser.add_argument("--ip", type=str, default=None, help="Endereço IP do ESP32 (ex: 192.168.0.2)")
     parser.add_argument("--dir", type=str, default=None, help="Diretório de destino dos backups locais")
     parser.add_argument("--no-audit", action="store_true", help="Desativa gravação no banco de auditoria")
 

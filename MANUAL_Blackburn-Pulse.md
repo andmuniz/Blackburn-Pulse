@@ -53,7 +53,7 @@ flowchart TD
         AP <--> PIHOLE
     end
 
-    subgraph Servidor["Raspberry Pi (192.168.200.150)"]
+    subgraph Servidor["Raspberry Pi (IP_DO_SERVIDOR_PI)"]
         NGINX["Nginx Proxy Reverso HTTPS :443\n(Terminação SSL mkcert / HSTS)"]
         MOSQ["Broker Mosquitto MQTT\n(Porta 1883)"]
         SVC["Serviço blackburn-pulse.service\n(FastAPI + Uvicorn :8000)"]
@@ -426,7 +426,7 @@ sudo tail -f /var/log/nginx/error.log
 
 #### Mapeamento no Pi-hole (Local DNS):
 * **Domain:** `blackburn-pulse.local` e `blackburn-pulse.lan`
-* **IP Address:** `192.168.200.150` (IP estático do Raspberry Pi)
+* **IP Address:** `IP_DO_SEVER` (IP estático do Raspberry Pi)
 
 ### 8.3 Arquitetura de Backup Diário e Sincronização do Micro SD
 

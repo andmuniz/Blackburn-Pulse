@@ -177,7 +177,7 @@ flowchart TD
 
 
 
-* **Broker:** Mosquitto MQTT no Raspberry Pi (`192.168.2.150:1883`)
+* **Broker:** Mosquitto MQTT no Raspberry Pi (`IP_SERVIDOR_PI:1883`)
 
 
 
@@ -191,7 +191,7 @@ flowchart TD
 
 | `home/energia/dds238` | Sim | A cada pulso e no boot | `{"pulsos": 6913, "kwh": 8.641}` |
 
-| `home/energia/heartbeat` | Não | A cada 20 segundos | `{"status":"online","ip":"192.168.2.14","rssi":-50,"uptime":3600,"pulsos":6913,"kwh":8.641}` |
+| `home/energia/heartbeat` | Não | A cada 20 segundos | `{"status":"online","ip":"IP_ESP32","rssi":-50,"uptime":3600,"pulsos":6913,"kwh":8.641}` |
 
 | `home/energia/config/status` | Sim | Ao reconfigurar | `{"status":"sucesso","mensagem":"Configuracoes salvas no ESP32! Reiniciando..."}` |
 

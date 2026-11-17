@@ -271,7 +271,7 @@ Armazena as faturas fechadas para auditoria permanente e reimpressão em PDF.
 
 * `mes_referencia`: Mês/Ano da competência (ex: `10/2026`)
 
-* `data_inicio`, `data_fim`: Intervalo real faturado
+* `data_inicio`, `data_fim`: Intervalo real faturado.
 
 * `leitura_inicial`, `leitura_final`: Faixa de medição
 

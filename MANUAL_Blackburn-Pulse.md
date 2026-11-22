@@ -159,10 +159,11 @@ flowchart TD
 5. **Decaimento Suave da Potência Instantânea:**
    * A potência calculada em tempo real ($\text{Watts} = 4.500.000 / \Delta t$) conta com decaimento dinâmico imediato após 2 segundos sem pulsos, permitindo que a queda de consumo seja refletida na tela no exato instante em que um eletrodoméstico de alta potência é desligado.
 
-6. **Tolerância a Quedas do Roteador (Ciclos Anti-Travamento):**
-   * Quando o roteador desliga ou reinicia, o ESP32 tenta reconectar ativamente por 12 vezes seguidas (~3 minutos de espera por ciclo).
-   * Se o rádio interno do chip travar durante a ausência do sinal, o ESP32 salva a contagem no SD e realiza um `ESP.restart()` limpo.
-   * Limite de Segurança: Após 3 ciclos completos (~10 minutos totais), se o roteador não retornar, ativa o **Portal de Resgate (`Blackburn-Config`)** para permitir reconfiguração via celular em `192.168.4.1`.
+6. **Tolerância a Quedas de Energia e Boot de Roteador (Auto-Recuperação Ativa):**
+   * **Persistência de Rede na Flash NVS (`redeEstaConfigurada()`):** Ao ligar após uma queda de luz, o firmware consulta a memória Flash permanente. Se já existir um SSID configurado, o ESP32 sabe que pertence a uma residência e que uma queda de energia acabou de ocorrer, jamais tratando o aparelho como novo.
+   * **Boot Lento do Roteador / ONU de Fibra (Janela de 10 Minutos):** Enquanto o ESP32 inicializa em 2 segundos, modems de operadora demoram entre 2 a 5 minutos para carregar o sistema, sincronizar GPON/PPPoE e subir o rádio 2.4GHz. O ESP32 possui tolerância de **10 minutos (600 segundos)** no modo Station para aguardar a rede subir, sem entrar em pânico nem perder pulsos.
+   * **Contagem e Gravação Ininterruptas:** Durante toda a ausência de rede, os pulsos continuam sendo contados na RAM por interrupção de hardware (`IRAM_ATTR`) e persistidos atomicamente no cartão Micro SD a cada 30 segundos.
+   * **Portal de Resgate DUAL (`WIFI_AP_STA`) com Auto-Recuperação em Background:** Caso passem 10 minutos e o roteador ainda não responda, o ESP32 abre a rede `Blackburn-Config` (192.168.4.1) em modo dual para permitir reconfiguração via celular. **Ao mesmo tempo**, o rádio continua sondando a rede residencial em segundo plano a cada 30 segundos. Assim que o roteador liga e responde, o ESP32 **fecha a rede de resgate sozinho** e retoma a operação normal sem necessidade de cabos, reboots manuais ou qualquer intervenção do usuário.
 
 7. **Preenchimento Inteligente de Quedas (Offline Gap-Fill):**
    * Se o servidor Raspberry Pi ficar desligado por horas e retornar com diferença acumulada, o backend interpola suavemente medições a cada 30 minutos, evitando "degraus" irreais nos gráficos horários.
@@ -361,15 +362,14 @@ Se por qualquer motivo o consumo voltar para $0,00\text{ kWh}$:
 
 ### 7.6 Como Usar a Rede de Resgate (Se o Roteador Queimou ou já Mudou)
 
-Se o ESP32 não conseguir conectar no Wi-Fi por mais de 35 segundos:
+Caso o roteador seja substituído ou a senha alterada e o ESP32 não localize a rede por mais de 10 minutos (ou se for a primeira inicialização de fábrica):
 
 1. Ele criará a rede Wi-Fi **`Blackburn-Config`** (sem senha).
-
 2. Conecte seu celular nessa rede.
-
 3. Abra o navegador no endereço: `http://192.168.4.1`
-
 4. Digite o novo Wi-Fi e senha e clique em **Salvar e Reiniciar ESP32**.
+> [!NOTE]
+> Se a queda de Wi-Fi foi apenas temporária (ex: reinício da operadora ou pico de energia), você **não precisa fazer nada**: o ESP32 continuará sondando a rede em segundo plano e fechará a rede `Blackburn-Config` sozinho assim que o roteador responder.
 
 
 

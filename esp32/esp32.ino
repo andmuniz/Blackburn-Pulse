@@ -67,13 +67,20 @@ WebServer server(80);
 DNSServer dnsServer;
 bool modoResgate = false;
 bool jaConectouAlgumaVez = false;
+bool redeConfiguradaNVS = false;
 int tentativasFalhasReconexao = 0;
 int ciclosRebootSemWiFi = 0;
 const int MAX_REBOOTS_SEM_WIFI =
     3; // Após 3 reboots (~10 min totais), abre o portal de resgate
+const unsigned long TEMPO_LIMITE_ROTEADOR_MS =
+    600000; // 10 minutos (600s) de tolerância ativa pós-queda de energia para o roteador subir
+const unsigned long TEMPO_LIMITE_SEM_CONFIG_MS =
+    20000; // 20s se for primeira instalação de fábrica sem rede configurada
 unsigned long inicioTentativaWiFi = 0;
 
 // --- PROTÓTIPOS DE FUNÇÕES ---
+bool redeEstaConfigurada();
+void finalizarModoResgatePorAutoRecuperacao();
 void salvarPulsosSD();
 void verificarSalvamentoSD();
 unsigned long carregarPulsosSD();
@@ -141,6 +148,13 @@ String extrairValorJson(String json, String chave) {
   return json.substring(aspasInicio + 1, aspasFim);
 }
 
+// --- VALIDAÇÃO SE O ESP32 JÁ POSSUI REDE CONFIGURADA PELO USUÁRIO ---
+bool redeEstaConfigurada() {
+  return (wifiSSID.length() > 0 &&
+          wifiSSID != DEFAULT_WIFI_SSID &&
+          wifiSSID != "NOME_SUA_REDE");
+}
+
 // --- LEITURA E GRAVACAO DE CONFIGURACOES NA MEMORIA NVS FLASH ---
 void carregarConfiguracoesNVS() {
   Preferences p;
@@ -149,11 +163,18 @@ void carregarConfiguracoesNVS() {
   wifiPassword = p.getString("pass", DEFAULT_WIFI_PASS);
   mqttServer = p.getString("mqtt", DEFAULT_MQTT_SERVER);
   mqttPort = p.getInt("port", DEFAULT_MQTT_PORT);
+  redeConfiguradaNVS = p.getBool("wifi_ok", false);
   p.end();
+
+  if (redeEstaConfigurada()) {
+    redeConfiguradaNVS = true;
+    jaConectouAlgumaVez = true;
+  }
 
   Serial.println("\n[CONFIG NVS] Configuracoes de rede carregadas:");
   Serial.println("  -> Wi-Fi SSID: " + wifiSSID);
   Serial.println("  -> MQTT Broker: " + mqttServer + ":" + String(mqttPort));
+  Serial.println("  -> Rede Configurada Previamente: " + String(redeConfiguradaNVS ? "SIM (Residencial)" : "NAO (Primeiro Uso)"));
 }
 
 void salvarConfiguracoesNVS(String novoSsid, String novaPass, String novoMqtt) {
@@ -162,6 +183,9 @@ void salvarConfiguracoesNVS(String novoSsid, String novaPass, String novoMqtt) {
   if (novoSsid.length() > 0) {
     p.putString("ssid", novoSsid);
     wifiSSID = novoSsid;
+    p.putBool("wifi_ok", true);
+    redeConfiguradaNVS = true;
+    jaConectouAlgumaVez = true;
   }
   if (novaPass.length() > 0) {
     p.putString("pass", novaPass);
@@ -238,99 +262,86 @@ void callbackMQTT(char *topic, byte *payload, unsigned int length) {
   }
 }
 
-// --- PORTAL DE RESGATE: PONTO DE ACESSO WI-FI + PORTAL CATIVO ---
+// --- PORTAL DE RESGATE: PONTO DE ACESSO WI-FI + PORTAL CATIVO AUTO-RECUPERÁVEL ---
 void iniciarModoResgate() {
+  if (modoResgate) return;
   modoResgate = true;
   Serial.println("\n========================================================");
-  Serial.println("[PORTAL DE RESGATE] Wi-Fi principal não conectou.");
-  Serial.println(
-      "[PORTAL DE RESGATE] Criando rede Wi-Fi própria: Blackburn-Config");
+  Serial.println("[PORTAL DE RESGATE] Roteador principal não respondeu.");
+  Serial.println("[PORTAL DE RESGATE] Ativando modo dual (AP + Station)...");
+  Serial.println("[PORTAL DE RESGATE] Criando rede Wi-Fi própria: Blackburn-Config");
+  Serial.println("[PORTAL DE RESGATE] O ESP32 continuará sondando o Wi-Fi residencial em background a cada 30s!");
   Serial.println("========================================================");
 
-  WiFi.disconnect();
-  WiFi.mode(WIFI_AP);
+  // Modo DUAL (WIFI_AP_STA): Mantém o AP aberto no celular e continua sondando a rede residencial
+  WiFi.mode(WIFI_AP_STA);
   IPAddress apIP(192, 168, 4, 1);
   WiFi.softAPConfig(apIP, apIP, IPAddress(255, 255, 255, 0));
   WiFi.softAP("Blackburn-Config"); // Rede aberta sem senha para facilitar
 
   dnsServer.start(53, "*", apIP); // Captive portal redirect
 
-  server.on("/", HTTP_GET, []() {
-    String html =
-        "<!DOCTYPE html><html><head><meta charset='utf-8'><meta "
-        "name='viewport' content='width=device-width, "
-        "initial-scale=1'><title>Blackburn-Pulse "
-        "Config</"
-        "title><style>body{font-family:-apple-system,BlinkMacSystemFont,Segoe "
-        "UI,Roboto,sans-serif;background:#0f172a;color:#f8fafc;padding:20px;"
-        "margin:0;}.card{background:#1e293b;border-radius:12px;padding:24px;"
-        "max-width:400px;margin:0 auto;border:1px solid "
-        "#334155;}h2{color:#10b981;margin-top:0;}label{font-size:0.85rem;color:"
-        "#94a3b8;display:block;margin-top:14px;margin-bottom:4px;}input{width:"
-        "100%;box-sizing:border-box;padding:10px;border-radius:6px;border:1px "
-        "solid "
-        "#475569;background:#0f172a;color:#fff;font-size:1rem;}button{width:"
-        "100%;margin-top:20px;padding:12px;background:#10b981;border:none;"
-        "border-radius:6px;color:#fff;font-size:1rem;font-weight:bold;cursor:"
-        "pointer;}</style></head><body><div class='card'><h2>⚡ "
-        "Blackburn-Pulse Configuração</h2><p "
-        "style='font-size:0.85rem;color:#94a3b8;'>Rede de emergÃªncia do "
-        "medidor. Digite os dados da sua rede Wi-Fi:</p><form action='/salvar' "
-        "method='POST'><label>Nome do Wi-Fi (SSID):</label><input type='text' "
-        "name='ssid' value='" +
-        wifiSSID +
-        "' required><label>Senha do Wi-Fi:</label><input type='password' "
-        "name='pass' placeholder='Nova senha da rede'><label>IP do Broker MQTT "
-        "(Raspberry Pi):</label><input type='text' name='mqtt' value='" +
-        mqttServer +
-        "' required><button type='submit'>Salvar e Reiniciar "
-        "ESP32</button></form></div></body></html>";
-    server.send(200, "text/html", html);
-  });
+  configurarRotasWebServer();
 
-  server.on("/salvar", HTTP_POST, []() {
-    String novoS = server.arg("ssid");
-    String novaP = server.arg("pass");
-    String novoM = server.arg("mqtt");
-    salvarConfiguracoesNVS(novoS, novaP, novoM);
-    String resp =
-        "<html><body "
-        "style='background:#0f172a;color:#10b981;font-family:sans-serif;text-"
-        "align:center;padding:40px;'><h2>Configurações Salvas!</h2><p "
-        "style='color:#fff;'>O ESP32 está reiniciando para conectar na sua "
-        "rede Wi-Fi...</p></body></html>";
-    server.send(200, "text/html", resp);
-    delay(1500);
-    ESP.restart();
-  });
-
-  server.onNotFound([]() {
-    server.sendHeader("Location", "http://192.168.4.1/", true);
-    server.send(302, "text/plain", "");
-  });
-
-  server.begin();
-  Serial.println("[PORTAL DE RESGATE] Pronto! Acesse no celular: Wi-Fi "
-                 "'Blackburn-Config' -> http://192.168.4.1");
+  Serial.println("[PORTAL DE RESGATE] Pronto! Acesse no celular: Wi-Fi 'Blackburn-Config' -> http://192.168.4.1");
 }
 
-// --- CONEXÃO E RECONEXÃO WI-FI ROBUSTA (SUPORTE A REDES OCULTAS) ---
+// --- FINALIZAÇÃO DO MODO RESGATE POR AUTO-RECUPERAÇÃO AUTOMÁTICA ---
+void finalizarModoResgatePorAutoRecuperacao() {
+  Serial.println("\n========================================================");
+  Serial.println("[AUTO-RECUPERAÇÃO] ✓ Rede Wi-Fi residencial restabelecida e conectada!");
+  Serial.println("[AUTO-RECUPERAÇÃO] Encerrando Portal de Resgate e desligando SoftAP...");
+  Serial.println("========================================================");
+
+  dnsServer.stop();
+  WiFi.softAPdisconnect(true);
+  delay(100);
+  WiFi.mode(WIFI_STA);
+
+  modoResgate = false;
+  tentativasFalhasReconexao = 0;
+  ciclosRebootSemWiFi = 0;
+  preferences.begin("energia", false);
+  preferences.putInt("reboots_wifi", 0);
+  preferences.end();
+
+  digitalWrite(STATUS_LED, HIGH);
+  Serial.print("[Wi-Fi] IP local do ESP32: ");
+  Serial.println(WiFi.localIP());
+
+  iniciarOTA();
+  if (MDNS.begin("esp32-energia")) {
+    MDNS.addService("http", "tcp", 80);
+    Serial.println("[mDNS] Ativo: http://esp32-energia.local");
+  }
+  configurarNTP();
+  configurarRotasWebServer();
+
+  Serial.println("[AUTO-RECUPERAÇÃO] Operação normal retomada com sucesso!");
+}
+
+// --- CONEXÃO E RECONEXÃO WI-FI ROBUSTA (SUPORTE A REDES OCULTAS E QUEDAS DE ENERGIA) ---
 void conectarWiFi() {
+  if (WiFi.status() == WL_CONNECTED) {
+    return;
+  }
+
   Serial.print("[Wi-Fi] Conectando ativamente à rede: ");
   Serial.println(wifiSSID);
 
-  WiFi.mode(WIFI_STA);
+  if (!modoResgate) {
+    WiFi.mode(WIFI_STA);
+  }
   WiFi.disconnect();
   delay(100);
 
   // O 5º parâmetro (true) força o ESP32 a emitir Probe Requests ativos,
-  // permitindo encontrar e reconectar instantaneamente em redes com SSID
-  // oculto.
+  // permitindo encontrar e reconectar instantaneamente em redes com SSID oculto.
   WiFi.begin(wifiSSID.c_str(), wifiPassword.c_str(), 0, NULL, true);
 
   unsigned long inicioTentativa = millis();
   while (WiFi.status() != WL_CONNECTED &&
-         (millis() - inicioTentativa < 15000)) {
+         (millis() - inicioTentativa < 12000)) {
     digitalWrite(
         STATUS_LED,
         !digitalRead(STATUS_LED)); // Pisca rápido (200ms) procurando Wi-Fi
@@ -340,8 +351,16 @@ void conectarWiFi() {
 
   if (WiFi.status() == WL_CONNECTED) {
     jaConectouAlgumaVez = true;
+    redeConfiguradaNVS = true;
     modoResgate = false;
     tentativasFalhasReconexao = 0;
+
+    // Salva na NVS que temos rede configurada com sucesso
+    Preferences p;
+    p.begin("config", false);
+    p.putBool("wifi_ok", true);
+    p.end();
+
     if (ciclosRebootSemWiFi > 0) {
       ciclosRebootSemWiFi = 0;
       preferences.begin("energia", false);
@@ -359,38 +378,41 @@ void conectarWiFi() {
     }
     configurarNTP();
     configurarRotasWebServer();
-    server.begin();
-    Serial.println("[WEBSERVER] Servidor HTTP de Backup e Sincronizacao ativo "
-                   "na porta 80!");
+    Serial.println("[WEBSERVER] Servidor HTTP de Backup e Sincronizacao ativo na porta 80!");
   } else {
-    Serial.println("\n[Wi-Fi] Nao foi possivel conectar neste ciclo.");
+    Serial.println("\n[Wi-Fi] Roteador ainda não respondeu neste ciclo.");
     tentativasFalhasReconexao++;
 
-    // Se NUNCA conectou desde que ligou na tomada e já passaram mais de 45
-    // segundos, significa que as credenciais salvas estão incorretas -> abre o
-    // Portal de Resgate
-    if (!jaConectouAlgumaVez && !modoResgate &&
-        (millis() - inicioTentativaWiFi > 45000)) {
+    unsigned long tempoDecorrido = millis() - inicioTentativaWiFi;
+    unsigned long tempoLimite = redeEstaConfigurada() ? TEMPO_LIMITE_ROTEADOR_MS : TEMPO_LIMITE_SEM_CONFIG_MS;
+
+    // Tolerância alta para queda de luz: enquanto estiver dentro do tempo limite (10 min),
+    // o ESP32 continua tentando pacientemente no modo Station.
+    // Após os 10 minutos, abre o Portal de Resgate, mas em modo DUAL (AP+STA) para continuar tentando em background!
+    if (!modoResgate && (tempoDecorrido > tempoLimite)) {
+      Serial.print("\n[Wi-Fi] Tempo de espera esgotado (");
+      Serial.print(tempoDecorrido / 1000);
+      Serial.println("s). Ativando Portal de Resgate com auto-recuperacao ativa...");
       iniciarModoResgate();
       return;
     }
 
-    // Se já estava conectado antes e o roteador caiu/reiniciou:
-    // Permite até 12 tentativas (~3 minutos de espera por ciclo).
-    if (jaConectouAlgumaVez && tentativasFalhasReconexao >= 12) {
+    // Se já tentou muitas vezes no modo Station e o rádio travou, executa um ciclo de reboot limpo
+    if (redeEstaConfigurada() && tentativasFalhasReconexao >= 12) {
       ciclosRebootSemWiFi++;
+      tentativasFalhasReconexao = 0;
 
-      // Se já tentou reiniciar 3 vezes completas (~10 minutos totais sem o
-      // roteador voltar), conclui que a rede/senha mudou e abre o Portal de
-      // Resgate para configuração.
+      // Se já tentou reiniciar 3 vezes completas (~10 minutos totais sem o roteador voltar),
+      // ativa o Portal de Resgate com auto-recuperação contínua
       if (ciclosRebootSemWiFi >= MAX_REBOOTS_SEM_WIFI) {
-        Serial.println("\n[Wi-Fi] 3 ciclos de reinicialização sem sucesso (~10 "
-                       "min). Ativando Portal de Resgate...");
+        Serial.println("\n[Wi-Fi] 3 ciclos de reinicialização sem sucesso. Ativando Portal de Resgate com auto-recuperação...");
         ciclosRebootSemWiFi = 0;
         preferences.begin("energia", false);
         preferences.putInt("reboots_wifi", 0);
         preferences.end();
-        iniciarModoResgate();
+        if (!modoResgate) {
+          iniciarModoResgate();
+        }
         return;
       }
 
@@ -398,8 +420,7 @@ void conectarWiFi() {
       Serial.print(ciclosRebootSemWiFi);
       Serial.print(" de ");
       Serial.print(MAX_REBOOTS_SEM_WIFI);
-      Serial.println(
-          "). Salvando contagem e reiniciando o ESP32 para limpar o rádio...");
+      Serial.println("). Salvando contagem e reiniciando o ESP32 para limpar o rádio...");
 
       salvarPulsosSD();
       preferences.begin("energia", false);
@@ -411,7 +432,7 @@ void conectarWiFi() {
   }
 }
 
-// --- RECONEXÃO MQTT AUTOMÃTICA ---
+// --- RECONEXÃO MQTT AUTOMÁTICA ---
 void reconectarMQTT() {
   if (WiFi.status() != WL_CONNECTED) {
     return;
@@ -784,8 +805,65 @@ void tratarRestaurarPulsosSD() {
                   "}");
 }
 
-// Registra rotas do WebServer para uso em modo Station
+// Registra rotas do WebServer para uso em modo Station e Portal de Resgate
 void configurarRotasWebServer() {
+  server.on("/", HTTP_GET, []() {
+    if (modoResgate) {
+      String html =
+          "<!DOCTYPE html><html><head><meta charset='utf-8'><meta "
+          "name='viewport' content='width=device-width, "
+          "initial-scale=1'><title>Blackburn-Pulse Config</title>"
+          "<style>body{font-family:-apple-system,BlinkMacSystemFont,Segoe "
+          "UI,Roboto,sans-serif;background:#0f172a;color:#f8fafc;padding:20px;"
+          "margin:0;}.card{background:#1e293b;border-radius:12px;padding:24px;"
+          "max-width:400px;margin:0 auto;border:1px solid "
+          "#334155;}h2{color:#10b981;margin-top:0;}label{font-size:0.85rem;color:"
+          "#94a3b8;display:block;margin-top:14px;margin-bottom:4px;}input{width:"
+          "100%;box-sizing:border-box;padding:10px;border-radius:6px;border:1px "
+          "solid "
+          "#475569;background:#0f172a;color:#fff;font-size:1rem;}button{width:"
+          "100%;margin-top:20px;padding:12px;background:#10b981;border:none;"
+          "border-radius:6px;color:#fff;font-size:1rem;font-weight:bold;cursor:"
+          "pointer;}.aviso{font-size:0.8rem;color:#38bdf8;margin-top:14px;text-align:center;line-height:1.4;}"
+          "</style></head><body><div class='card'><h2>⚡ "
+          "Blackburn-Pulse Configuração</h2><p "
+          "style='font-size:0.85rem;color:#94a3b8;'>Rede de emergência do "
+          "medidor. Digite os dados da sua rede Wi-Fi:</p><form action='/salvar' "
+          "method='POST'><label>Nome do Wi-Fi (SSID):</label><input type='text' "
+          "name='ssid' value='" +
+          wifiSSID +
+          "' required><label>Senha do Wi-Fi:</label><input type='password' "
+          "name='pass' placeholder='Nova senha da rede'><label>IP do Broker MQTT "
+          "(Raspberry Pi):</label><input type='text' name='mqtt' value='" +
+          mqttServer +
+          "' required><button type='submit'>Salvar e Reiniciar "
+          "ESP32</button></form><div class='aviso'>🔄 O medidor está tentando reconectar ao seu Wi-Fi residencial automaticamente em segundo plano. Assim que o roteador responder, o portal fechará sozinho.</div></div></body></html>";
+      server.send(200, "text/html", html);
+    } else {
+      String html = "<!DOCTYPE html><html><head><meta charset='utf-8'><title>Blackburn-Pulse</title>"
+                    "<style>body{font-family:sans-serif;background:#0f172a;color:#10b981;text-align:center;padding:50px;}</style></head>"
+                    "<body><h2>⚡ Blackburn-Pulse Online</h2><p style='color:#94a3b8;'>ESP32 operando normalmente na rede local.</p>"
+                    "<p><a style='color:#38bdf8;' href='/status-sd'>Ver Status do Cartão Micro SD</a> | <a style='color:#38bdf8;' href='/listar'>Listar Arquivos Diários</a></p></body></html>";
+      server.send(200, "text/html", html);
+    }
+  });
+
+  server.on("/salvar", HTTP_POST, []() {
+    String novoS = server.arg("ssid");
+    String novaP = server.arg("pass");
+    String novoM = server.arg("mqtt");
+    salvarConfiguracoesNVS(novoS, novaP, novoM);
+    String resp =
+        "<html><body "
+        "style='background:#0f172a;color:#10b981;font-family:sans-serif;text-"
+        "align:center;padding:40px;'><h2>Configurações Salvas!</h2><p "
+        "style='color:#fff;'>O ESP32 está reiniciando para conectar na sua "
+        "rede Wi-Fi...</p></body></html>";
+    server.send(200, "text/html", resp);
+    delay(1500);
+    ESP.restart();
+  });
+
   server.on("/listar", HTTP_GET, tratarListarArquivosSD);
   server.on("/baixar", HTTP_GET, tratarBaixarArquivoSD);
   server.on("/apagar", HTTP_POST, tratarApagarArquivoSD);
@@ -804,6 +882,17 @@ void configurarRotasWebServer() {
         ",\"pulsos_ativos\":" + String(contadorPulsos) + "}";
     server.send(200, "application/json", json);
   });
+
+  server.onNotFound([]() {
+    if (modoResgate) {
+      server.sendHeader("Location", "http://192.168.4.1/", true);
+      server.send(302, "text/plain", "");
+    } else {
+      server.send(404, "text/plain", "Endpoint nao encontrado no Blackburn-Pulse");
+    }
+  });
+
+  server.begin();
 }
 
 void verificarSalvamentoSD() {
@@ -905,9 +994,10 @@ void setup() {
   ciclosRebootSemWiFi = preferences.getInt("reboots_wifi", 0);
   preferences.end();
 
-  // Se já tinha reboots acumulados, significa que já estava configurado antes
-  if (ciclosRebootSemWiFi > 0) {
+  // Se já tinha reboots acumulados ou se o SSID é válido, já temos rede configurada
+  if (ciclosRebootSemWiFi > 0 || redeEstaConfigurada()) {
     jaConectouAlgumaVez = true;
+    redeConfiguradaNVS = true;
   }
 
   Serial.println("\n==========================================");
@@ -948,6 +1038,25 @@ void loop() {
       digitalWrite(STATUS_LED, LOW);
     }
 
+    // AUTO-RECUPERAÇÃO ATIVA: Tenta reconectar ao Wi-Fi residencial em background a cada 30 segundos!
+    static unsigned long ultimoTentativaReconexaoResgate = 0;
+    if (redeEstaConfigurada() && (millis() - ultimoTentativaReconexaoResgate > 30000)) {
+      ultimoTentativaReconexaoResgate = millis();
+      Serial.println("\n[PORTAL RESGATE] Sondando retorno do roteador residencial em background...");
+      WiFi.begin(wifiSSID.c_str(), wifiPassword.c_str(), 0, NULL, true);
+
+      unsigned long iniWait = millis();
+      while (WiFi.status() != WL_CONNECTED && (millis() - iniWait < 6000)) {
+        delay(100);
+        dnsServer.processNextRequest();
+        server.handleClient();
+      }
+
+      if (WiFi.status() == WL_CONNECTED) {
+        finalizarModoResgatePorAutoRecuperacao();
+      }
+    }
+
     verificarSalvamentoSD();
     return;
   }
@@ -957,6 +1066,7 @@ void loop() {
     conectarWiFi();
     if (WiFi.status() != WL_CONNECTED) {
       delay(500);
+      verificarSalvamentoSD();
       return;
     }
   }

@@ -128,10 +128,11 @@ flowchart TD
 
     RAM --> WIFI_OK{"Wi-Fi OK?"}
     WIFI_OK -->|Sim| MQTT_PUB["Publica MQTT (retain=true)"]
-    WIFI_OK -->|Não| RETRY["12 tentativas (~3 min cada)"]
-    RETRY --> REBOOT{"3 ciclos falharam?"}
+    WIFI_OK -->|Não: Queda de Luz| TOLERANCIA["Tolerância Ativa de 10 min\nAguarda boot lento do modem/roteador\nContinua gravando no SD a cada 30s"]
+    TOLERANCIA --> REBOOT{"Passou de 10 min?"}
     REBOOT -->|Não| WIFI_OK
-    REBOOT -->|Sim| RESCUE["Portal de Resgate\nBlackburn-Config (192.168.4.1)"]
+    REBOOT -->|Sim| RESCUE["Portal DUAL (WIFI_AP_STA)\nAbre Blackburn-Config (192.168.4.1)\n+ Auto-recuperação em background a cada 30s"]
+    RESCUE -.->|"Roteador voltou"| WIFI_OK
 ```
 
 ---

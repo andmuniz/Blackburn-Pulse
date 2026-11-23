@@ -248,3 +248,20 @@ html:not(.dark) #themeToggle {
     border-color: #cbd5e1 !important;
     color: #0f172a !important;
 }
+
+/* 12. Alternância de Logotipos por Tema */
+html.dark .logo-theme-dark {
+    display: block !important;
+    filter: drop-shadow(0 0 1.5px rgba(255, 255, 255, 0.45)) drop-shadow(0 2px 8px rgba(0, 0, 0, 0.7));
+}
+html.dark .logo-theme-light {
+    display: none !important;
+}
+html:not(.dark) .logo-theme-dark {
+    display: none !important;
+}
+html:not(.dark) .logo-theme-light {
+    display: block !important;
+    filter: drop-shadow(0 1px 3px rgba(15, 23, 42, 0.12));
+}
+

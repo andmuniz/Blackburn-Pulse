@@ -1,0 +1,568 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:xlink="http://www.w3.org/1999/xlink"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   viewBox="0 0 760 180"
+   width="760"
+   height="180"
+   fill="none"
+   version="1.1"
+   id="svg144"
+   sodipodi:docname="BBP-black.svg"
+   inkscape:version="1.0.2-2 (e86c870879, 2021-01-15)">
+  <metadata
+     id="metadata148">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <sodipodi:namedview
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1"
+     objecttolerance="10"
+     gridtolerance="10"
+     guidetolerance="10"
+     inkscape:pageopacity="0"
+     inkscape:pageshadow="2"
+     inkscape:window-width="1920"
+     inkscape:window-height="991"
+     id="namedview146"
+     showgrid="false"
+     inkscape:zoom="1.0125"
+     inkscape:cx="458.63353"
+     inkscape:cy="38.614824"
+     inkscape:window-x="-9"
+     inkscape:window-y="-9"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="svg144" />
+  <defs
+     id="defs48">
+    <linearGradient
+       id="bezelGradDark"
+       x1="-53.25"
+       y1="-53.25"
+       x2="53.25"
+       y2="53.25"
+       gradientUnits="userSpaceOnUse">
+      <stop
+         offset="0%"
+         stop-color="#E2E8F0"
+         id="stop2" />
+      <stop
+         offset="50%"
+         stop-color="#64748B"
+         id="stop4" />
+      <stop
+         offset="100%"
+         stop-color="#1E293B"
+         id="stop6" />
+    </linearGradient>
+    <linearGradient
+       id="dialFaceDark"
+       x1="-39"
+       y1="-39"
+       x2="39"
+       y2="39"
+       gradientUnits="userSpaceOnUse">
+      <stop
+         offset="0%"
+         stop-color="#475569"
+         id="stop9" />
+      <stop
+         offset="55%"
+         stop-color="#1E293B"
+         id="stop11" />
+      <stop
+         offset="100%"
+         stop-color="#0F172A"
+         id="stop13" />
+    </linearGradient>
+    <linearGradient
+       id="miniDialDark"
+       x1="0%"
+       y1="0%"
+       x2="0%"
+       y2="100%">
+      <stop
+         offset="0%"
+         stop-color="#E2E8F0"
+         id="stop16" />
+      <stop
+         offset="100%"
+         stop-color="#94A3B8"
+         id="stop18" />
+    </linearGradient>
+    <linearGradient
+       id="dinBodyDark"
+       x1="108.03311"
+       y1="7.0811621"
+       x2="108.03311"
+       y2="106.21743"
+       gradientTransform="scale(0.78679579,1.2709778)"
+       gradientUnits="userSpaceOnUse">
+      <stop
+         offset="0%"
+         stop-color="#94A3B8"
+         id="stop21" />
+      <stop
+         offset="15%"
+         stop-color="#334155"
+         id="stop23" />
+      <stop
+         offset="85%"
+         stop-color="#111827"
+         id="stop25" />
+      <stop
+         offset="100%"
+         stop-color="#030712"
+         id="stop27" />
+    </linearGradient>
+    <linearGradient
+       id="pulseTealDark"
+       x1="0%"
+       y1="0%"
+       x2="0%"
+       y2="100%">
+      <stop
+         offset="0%"
+         stop-color="#5EEAD4"
+         id="stop30" />
+      <stop
+         offset="55%"
+         stop-color="#2DD4BF"
+         id="stop32" />
+      <stop
+         offset="100%"
+         stop-color="#0D9488"
+         id="stop34" />
+    </linearGradient>
+    <linearGradient
+       id="blackburnEmberDark"
+       x1="0%"
+       y1="100%"
+       x2="0%"
+       y2="0%">
+      <stop
+         offset="0%"
+         stop-color="#d97706"
+         id="stop37" />
+      <stop
+         offset="40%"
+         stop-color="#f59e0b"
+         id="stop39" />
+      <stop
+         offset="75%"
+         stop-color="#fbbf24"
+         id="stop41" />
+      <stop
+         offset="100%"
+         stop-color="#fef3c7"
+         id="stop43" />
+    </linearGradient>
+    <style
+       id="style46">
+      @keyframes ecg-sweep-dark {
+        0% {
+          stroke-dashoffset: 180;
+        }
+        100% {
+          stroke-dashoffset: -180;
+        }
+      }
+      .ecg-surge-dark {
+        stroke-dasharray: 44 136;
+        animation: ecg-sweep-dark 1.8s linear infinite;
+      }
+
+      @keyframes led-pulse-dark {
+        0%, 100% { opacity: 0.35; }
+        50% { opacity: 1; }
+      }
+      .led-beat-dark {
+        animation: led-pulse-dark 0.9s ease-in-out infinite;
+      }
+    </style>
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#pulseTealDark"
+       id="linearGradient973"
+       x1="390.15894"
+       y1="-48.955434"
+       x2="390.15894"
+       y2="15.576729"
+       gradientTransform="matrix(1.1126235,0,0,0.89877664,224,110)"
+       gradientUnits="userSpaceOnUse" />
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#miniDialDark"
+       id="linearGradient982"
+       x1="-11.25"
+       y1="-11.25"
+       x2="-11.25"
+       y2="11.25"
+       gradientUnits="userSpaceOnUse" />
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#miniDialDark"
+       id="linearGradient984"
+       x1="-11.25"
+       y1="-11.25"
+       x2="-11.25"
+       y2="11.25"
+       gradientUnits="userSpaceOnUse" />
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#miniDialDark"
+       id="linearGradient986"
+       x1="-11.25"
+       y1="-11.25"
+       x2="-11.25"
+       y2="11.25"
+       gradientUnits="userSpaceOnUse" />
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#miniDialDark"
+       id="linearGradient988"
+       x1="-11.25"
+       y1="-11.25"
+       x2="-11.25"
+       y2="11.25"
+       gradientUnits="userSpaceOnUse" />
+  </defs>
+  <g
+     transform="translate(28,18)"
+     id="g126">
+    <rect
+       x="86"
+       y="10"
+       width="76"
+       height="124"
+       rx="8"
+       fill="url(#dinBodyDark)"
+       stroke="#94a3b8"
+       stroke-width="2.5"
+       id="rect52"
+       style="fill:url(#dinBodyDark)" />
+    <rect
+       x="96"
+       y="6"
+       width="56"
+       height="8"
+       rx="2"
+       fill="#94a3b8"
+       stroke="#1e293b"
+       stroke-width="1.5"
+       id="rect54" />
+    <rect
+       x="96"
+       y="130"
+       width="56"
+       height="8"
+       rx="2"
+       fill="#334155"
+       stroke="#0f172a"
+       stroke-width="1.5"
+       id="rect56" />
+    <rect
+       x="94"
+       y="24"
+       width="60"
+       height="96"
+       rx="4"
+       fill="#0b0f15"
+       stroke="#334155"
+       stroke-width="1.5"
+       id="rect58" />
+    <text
+       x="124"
+       y="46"
+       text-anchor="middle"
+       font-family="'DejaVu Sans Mono', 'Liberation Mono', monospace"
+       font-size="16px"
+       font-weight="bold"
+       letter-spacing="1"
+       fill="#34d399"
+       id="text60">888.8</text>
+    <circle
+       cx="107"
+       cy="74"
+       r="6.5"
+       fill="#064e3b"
+       stroke="#10b981"
+       stroke-width="1.5"
+       id="circle62" />
+    <circle
+       cx="107"
+       cy="74"
+       r="4"
+       fill="#2dd4bf"
+       class="led-beat-dark"
+       id="circle64" />
+    <path
+       d="m 118,76 h 6 l 3,-8 4,18 4,-25 4,20 3,-5 h 6"
+       stroke="#34d399"
+       stroke-width="2.2"
+       stroke-linecap="round"
+       stroke-linejoin="round"
+       id="path66" />
+    <g
+       transform="translate(54,72)"
+       id="g124">
+      <circle
+         cx="0"
+         cy="0"
+         r="52"
+         fill="url(#bezelGradDark)"
+         stroke="#94a3b8"
+         stroke-width="2.5"
+         id="circle68"
+         style="fill:url(#bezelGradDark)" />
+      <circle
+         cx="0"
+         cy="0"
+         r="52"
+         stroke="#64748b"
+         stroke-width="4.5"
+         stroke-dasharray="6, 14.4"
+         id="circle70" />
+      <circle
+         cx="0"
+         cy="0"
+         r="43"
+         fill="#94a3b8"
+         stroke="#1e293b"
+         stroke-width="1.5"
+         id="circle72" />
+      <circle
+         cx="0"
+         cy="0"
+         r="38"
+         fill="url(#dialFaceDark)"
+         stroke="#475569"
+         stroke-width="2"
+         id="circle74"
+         style="fill:url(#dialFaceDark)" />
+      <g
+         transform="translate(-14,-12)"
+         id="g84">
+        <circle
+           cx="0"
+           cy="0"
+           r="10.5"
+           fill="url(#miniDialDark)"
+           stroke="#090d16"
+           stroke-width="1.5"
+           id="circle76"
+           style="fill:url(#linearGradient982)" />
+        <circle
+           cx="0"
+           cy="0"
+           r="8"
+           stroke="#475569"
+           stroke-width="0.9"
+           stroke-dasharray="1.5, 2.6"
+           id="circle78" />
+        <line
+           x1="0"
+           y1="0"
+           x2="5.5"
+           y2="-4.5"
+           stroke="#090d16"
+           stroke-width="1.8"
+           stroke-linecap="round"
+           id="line80" />
+        <circle
+           cx="0"
+           cy="0"
+           r="1.8"
+           fill="#090d16"
+           id="circle82" />
+      </g>
+      <g
+         transform="translate(14,-12)"
+         id="g94">
+        <circle
+           cx="0"
+           cy="0"
+           r="10.5"
+           fill="url(#miniDialDark)"
+           stroke="#090d16"
+           stroke-width="1.5"
+           id="circle86"
+           style="fill:url(#linearGradient984)" />
+        <circle
+           cx="0"
+           cy="0"
+           r="8"
+           stroke="#475569"
+           stroke-width="0.9"
+           stroke-dasharray="1.5, 2.6"
+           id="circle88" />
+        <line
+           x1="0"
+           y1="0"
+           x2="-4"
+           y2="-6.5"
+           stroke="#090d16"
+           stroke-width="1.8"
+           stroke-linecap="round"
+           id="line90" />
+        <circle
+           cx="0"
+           cy="0"
+           r="1.8"
+           fill="#090d16"
+           id="circle92" />
+      </g>
+      <g
+         transform="translate(-14,13)"
+         id="g104">
+        <circle
+           cx="0"
+           cy="0"
+           r="10.5"
+           fill="url(#miniDialDark)"
+           stroke="#090d16"
+           stroke-width="1.5"
+           id="circle96"
+           style="fill:url(#linearGradient986)" />
+        <circle
+           cx="0"
+           cy="0"
+           r="8"
+           stroke="#475569"
+           stroke-width="0.9"
+           stroke-dasharray="1.5, 2.6"
+           id="circle98" />
+        <line
+           x1="0"
+           y1="0"
+           x2="6.5"
+           y2="3.5"
+           stroke="#090d16"
+           stroke-width="1.8"
+           stroke-linecap="round"
+           id="line100" />
+        <circle
+           cx="0"
+           cy="0"
+           r="1.8"
+           fill="#090d16"
+           id="circle102" />
+      </g>
+      <g
+         transform="translate(14,13)"
+         id="g114">
+        <circle
+           cx="0"
+           cy="0"
+           r="10.5"
+           fill="url(#miniDialDark)"
+           stroke="#090d16"
+           stroke-width="1.5"
+           id="circle106"
+           style="fill:url(#linearGradient988)" />
+        <circle
+           cx="0"
+           cy="0"
+           r="8"
+           stroke="#475569"
+           stroke-width="0.9"
+           stroke-dasharray="1.5, 2.6"
+           id="circle108" />
+        <line
+           x1="0"
+           y1="0"
+           x2="2"
+           y2="-7"
+           stroke="#090d16"
+           stroke-width="1.8"
+           stroke-linecap="round"
+           id="line110" />
+        <circle
+           cx="0"
+           cy="0"
+           r="1.8"
+           fill="#090d16"
+           id="circle112" />
+      </g>
+      <g
+         transform="translate(0,1)"
+         id="g122">
+        <circle
+           cx="0"
+           cy="0"
+           r="9"
+           fill="#f8fafc"
+           stroke="#090d16"
+           stroke-width="1.6"
+           id="circle116" />
+        <line
+           x1="0"
+           y1="0"
+           x2="5"
+           y2="-5"
+           stroke="#090d16"
+           stroke-width="2"
+           stroke-linecap="round"
+           id="line118" />
+        <circle
+           cx="0"
+           cy="0"
+           r="2"
+           fill="#090d16"
+           id="circle120" />
+      </g>
+    </g>
+  </g>
+  <text
+     x="204"
+     y="110"
+     font-family="'DejaVu Sans', Arial, Helvetica, sans-serif"
+     font-size="44px"
+     font-weight="bold"
+     letter-spacing="0.5"
+     id="text134"><tspan
+       fill="url(#blackburnEmberDark)"
+       stroke="#fbbf24"
+       stroke-width="1.4"
+       paint-order="stroke fill"
+       id="tspan128">BLACKBURN</tspan><tspan
+       fill="#e2e8f0"
+       stroke="#94a3b8"
+       stroke-width="0.8"
+       id="tspan130">-</tspan><tspan
+       fill="url(#pulseTealDark)"
+       stroke="#2dd4bf"
+       stroke-width="1.2"
+       paint-order="stroke fill"
+       id="tspan132">PULSE</tspan></text>
+  <path
+     d="m 660,96 h 11 l 4,-4 4,4 h 4 l 3,8 6,-38 6,58 5,-28 h 6 l 4,-5 4,5 h 11"
+     stroke="#134e4a"
+     stroke-width="3"
+     stroke-linecap="round"
+     stroke-linejoin="round"
+     id="path136" />
+  <path
+     d="m 660,96 h 11 l 4,-4 4,4 h 4 l 3,8 6,-38 6,58 5,-28 h 6 l 4,-5 4,5 h 11"
+     stroke="url(#pulseTealDark)"
+     stroke-width="3.8"
+     stroke-linecap="round"
+     stroke-linejoin="round"
+     class="ecg-surge-dark"
+     id="path138"
+     style="stroke:url(#linearGradient973)" />
+</svg>

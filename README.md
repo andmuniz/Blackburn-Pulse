@@ -1,5 +1,8 @@
 <p align="center">
-  <img src="static/icon-192.svg" alt="Blackburn-Pulse Logo" width="140" />
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="static/logoblack.svg">
+    <img src="static/logowhite.svg" alt="Blackburn-Pulse Logo" width="460">
+  </picture>
 </p>
 
 <h1 align="center">⚡ Blackburn-Pulse</h1>

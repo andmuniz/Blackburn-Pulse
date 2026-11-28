@@ -65,7 +65,9 @@
         // Registro do Service Worker para suporte a PWA (Instalar no Celular)
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
-                navigator.serviceWorker.register('/sw.js').catch(() => { });
+                navigator.serviceWorker.register('/sw.js').then(reg => {
+                    reg.update();
+                }).catch(() => { });
             });
         }
     </script>
@@ -110,11 +112,12 @@
     </style>
 
     <!-- PWA Progressive Web App Manifest -->
-    <link rel="manifest" href="/manifest.json">
+    <link rel="manifest" href="/manifest.json?v={{ asset_v() }}">
     <meta name="theme-color" content="#0b0f19">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <link rel="apple-touch-icon" href="/static/icon-192.svg">
+    <link rel="icon" type="image/svg+xml" href="/static/icon-192.svg?v={{ asset_v() }}">
+    <link rel="apple-touch-icon" href="/static/icon-192.svg?v={{ asset_v() }}">
 </head>
 
 <body
@@ -2167,7 +2170,9 @@
         // Registro do Service Worker para suporte a PWA (Instalar no Celular)
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
-                navigator.serviceWorker.register('/sw.js').catch(() => { });
+                navigator.serviceWorker.register('/sw.js').then(reg => {
+                    reg.update();
+                }).catch(() => { });
             });
         }
     </script>

@@ -1,33 +1,548 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="100%" height="100%">
-  <defs>
-    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#0f172a" />
-      <stop offset="50%" stop-color="#1e1b4b" />
-      <stop offset="100%" stop-color="#090d16" />
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   viewBox="0 0 192 192"
+   width="192"
+   height="192"
+   fill="none"
+   version="1.1"
+   id="svg114"
+   sodipodi:docname="gemini-svg(2).svg"
+   inkscape:version="1.0.2-2 (e86c870879, 2021-01-15)">
+  <metadata
+     id="metadata118">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <sodipodi:namedview
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1"
+     objecttolerance="10"
+     gridtolerance="10"
+     guidetolerance="10"
+     inkscape:pageopacity="0"
+     inkscape:pageshadow="2"
+     inkscape:window-width="1920"
+     inkscape:window-height="991"
+     id="namedview116"
+     showgrid="false"
+     inkscape:zoom="2.1354167"
+     inkscape:cx="111.67603"
+     inkscape:cy="117.70605"
+     inkscape:window-x="-9"
+     inkscape:window-y="-9"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="svg114" />
+  <defs
+     id="defs36">
+    <linearGradient
+       id="bezelGradDark"
+       x1="-53.25"
+       y1="-53.25"
+       x2="53.25"
+       y2="53.25"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="translate(68.75,96)">
+      <stop
+         offset="0%"
+         stop-color="#E2E8F0"
+         id="stop2" />
+      <stop
+         offset="50%"
+         stop-color="#64748B"
+         id="stop4" />
+      <stop
+         offset="100%"
+         stop-color="#1E293B"
+         id="stop6" />
     </linearGradient>
-    <linearGradient id="boltGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#10b981" />
-      <stop offset="50%" stop-color="#38bdf8" />
-      <stop offset="100%" stop-color="#8b5cf6" />
+    <linearGradient
+       id="dialFaceDark"
+       x1="-39"
+       y1="-39"
+       x2="39"
+       y2="39"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="translate(68.75,96)">
+      <stop
+         offset="0%"
+         stop-color="#475569"
+         id="stop9" />
+      <stop
+         offset="55%"
+         stop-color="#1E293B"
+         id="stop11" />
+      <stop
+         offset="100%"
+         stop-color="#0F172A"
+         id="stop13" />
     </linearGradient>
-    <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
-      <feGaussianBlur stdDeviation="16" result="blur" />
-      <feComposite in="SourceGraphic" in2="blur" operator="over" />
-    </filter>
+    <linearGradient
+       id="miniDialDark"
+       x1="0%"
+       y1="0%"
+       x2="0%"
+       y2="100%">
+      <stop
+         offset="0%"
+         stop-color="#E2E8F0"
+         id="stop16" />
+      <stop
+         offset="100%"
+         stop-color="#94A3B8"
+         id="stop18" />
+    </linearGradient>
+    <linearGradient
+       id="dinBodyDark"
+       x1="108.03311"
+       y1="7.0811621"
+       x2="108.03311"
+       y2="106.21743"
+       gradientTransform="matrix(0.78679579,0,0,1.2709778,14.75,24)"
+       gradientUnits="userSpaceOnUse">
+      <stop
+         offset="0%"
+         stop-color="#94A3B8"
+         id="stop21" />
+      <stop
+         offset="15%"
+         stop-color="#334155"
+         id="stop23" />
+      <stop
+         offset="85%"
+         stop-color="#111827"
+         id="stop25" />
+      <stop
+         offset="100%"
+         stop-color="#030712"
+         id="stop27" />
+    </linearGradient>
+    <linearGradient
+       id="linearGradient982"
+       x1="-11.25"
+       y1="-11.25"
+       x2="-11.25"
+       y2="11.25"
+       gradientUnits="userSpaceOnUse" />
+    <linearGradient
+       id="linearGradient984"
+       x1="-11.25"
+       y1="-11.25"
+       x2="-11.25"
+       y2="11.25"
+       gradientUnits="userSpaceOnUse" />
+    <linearGradient
+       id="linearGradient986"
+       x1="-11.25"
+       y1="-11.25"
+       x2="-11.25"
+       y2="11.25"
+       gradientUnits="userSpaceOnUse" />
+    <linearGradient
+       id="linearGradient988"
+       x1="-11.25"
+       y1="-11.25"
+       x2="-11.25"
+       y2="11.25"
+       gradientUnits="userSpaceOnUse" />
+    <style
+       id="style34">
+      @keyframes led-pulse-dark {
+        0%, 100% { opacity: 0.35; }
+        50% { opacity: 1; }
+      }
+      .led-beat-dark {
+        animation: led-pulse-dark 0.9s ease-in-out infinite;
+      }
+    </style>
+    <linearGradient
+       id="blackburnEmberDark"
+       x1="0"
+       y1="1"
+       x2="0"
+       y2="0">
+      <stop
+         offset="0%"
+         stop-color="#d97706"
+         id="stop37" />
+      <stop
+         offset="40%"
+         stop-color="#f59e0b"
+         id="stop39" />
+      <stop
+         offset="75%"
+         stop-color="#fbbf24"
+         id="stop41" />
+      <stop
+         offset="100%"
+         stop-color="#fef3c7"
+         id="stop43" />
+    </linearGradient>
+    <linearGradient
+       id="pulseTealDark"
+       x1="0"
+       y1="0"
+       x2="0"
+       y2="1">
+      <stop
+         offset="0%"
+         stop-color="#5EEAD4"
+         id="stop30" />
+      <stop
+         offset="55%"
+         stop-color="#2DD4BF"
+         id="stop32" />
+      <stop
+         offset="100%"
+         stop-color="#0D9488"
+         id="stop34" />
+    </linearGradient>
   </defs>
-  
-  <!-- Fundo Arredondado -->
-  <rect width="512" height="512" rx="112" fill="url(#bgGrad)" stroke="#334155" stroke-width="8" />
-  
-  <!-- Círculo interno decorativo com pulso -->
-  <circle cx="256" cy="256" r="190" fill="none" stroke="#10b981" stroke-width="4" stroke-opacity="0.25" stroke-dasharray="16 8" />
-  
-  <!-- Linha de Pulso Eletrocardiograma / Sensor -->
-  <path d="M 90 260 L 170 260 L 195 210 L 225 310 L 255 170 L 285 330 L 315 230 L 340 260 L 422 260" 
-        fill="none" stroke="#38bdf8" stroke-width="10" stroke-linecap="round" stroke-linejoin="round" opacity="0.4" />
-        
-  <!-- Raio Principal de Alta Tensão / Blackburn Shallenberger -->
-  <path d="M 280 90 L 170 270 L 250 270 L 220 422 L 350 230 L 270 230 Z" 
-        fill="url(#boltGrad)" filter="url(#glow)" />
+  <g
+     id="g1153">
+    <g
+       id="g1044">
+      <rect
+         x="100.75"
+         y="34"
+         width="76"
+         height="124"
+         rx="8"
+         fill="url(#dinBodyDark)"
+         stroke="#475569"
+         stroke-width="2"
+         id="rect38"
+         style="fill:url(#dinBodyDark)" />
+      <rect
+         x="110.75"
+         y="30"
+         width="56"
+         height="8"
+         rx="2"
+         fill="#94a3b8"
+         stroke="#1e293b"
+         stroke-width="1.5"
+         id="rect40" />
+      <rect
+         x="110.75"
+         y="154"
+         width="56"
+         height="8"
+         rx="2"
+         fill="#334155"
+         stroke="#0f172a"
+         stroke-width="1.5"
+         id="rect42" />
+      <rect
+         x="108.75"
+         y="48"
+         width="60"
+         height="96"
+         rx="4"
+         fill="#0b0f15"
+         stroke="#334155"
+         stroke-width="1.5"
+         id="rect44" />
+      <text
+         x="138.75"
+         y="70"
+         text-anchor="middle"
+         font-family="'DejaVu Sans Mono', 'Liberation Mono', monospace"
+         font-size="16px"
+         font-weight="bold"
+         letter-spacing="1"
+         fill="#34d399"
+         id="text46">888.8</text>
+      <circle
+         cx="121.75"
+         cy="98"
+         r="6.5"
+         fill="#064e3b"
+         stroke="#10b981"
+         stroke-width="1.5"
+         id="circle48" />
+      <circle
+         cx="121.75"
+         cy="98"
+         r="4"
+         fill="#2dd4bf"
+         class="led-beat-dark"
+         id="circle50" />
+      <path
+         d="m 132.75,100 h 6 l 3,-8 4,18 4,-25 4,20 3,-5 h 6"
+         stroke="#34d399"
+         stroke-width="2.2"
+         stroke-linecap="round"
+         stroke-linejoin="round"
+         id="path52" />
+      <circle
+         cx="68.75"
+         cy="96"
+         r="52"
+         fill="url(#bezelGradDark)"
+         stroke="#090d16"
+         stroke-width="2.5"
+         id="circle54"
+         style="fill:url(#bezelGradDark)" />
+      <circle
+         cx="68.75"
+         cy="96"
+         r="52"
+         stroke="#090d16"
+         stroke-width="5"
+         stroke-dasharray="6, 14.4"
+         id="circle56" />
+      <circle
+         cx="68.75"
+         cy="96"
+         r="43"
+         fill="#94a3b8"
+         stroke="#1e293b"
+         stroke-width="1.5"
+         id="circle58" />
+      <circle
+         cx="68.75"
+         cy="96"
+         r="38"
+         fill="url(#dialFaceDark)"
+         stroke="#090d16"
+         stroke-width="2"
+         id="circle60"
+         style="fill:url(#dialFaceDark)" />
+      <g
+         transform="translate(54.75,84)"
+         id="g70"
+         style="fill:#ffffff;stroke:#000000">
+        <circle
+           cx="0"
+           cy="0"
+           r="10.5"
+           fill="url(#linearGradient982)"
+           stroke="#090d16"
+           stroke-width="1.5"
+           id="circle62"
+           style="fill:#ffffff;stroke:#000000" />
+        <circle
+           cx="0"
+           cy="0"
+           r="8"
+           stroke="#475569"
+           stroke-width="0.9"
+           stroke-dasharray="1.5, 2.6"
+           id="circle64"
+           style="fill:#ffffff;stroke:#000000" />
+        <line
+           x1="0"
+           y1="0"
+           x2="5.5"
+           y2="-4.5"
+           stroke="#090d16"
+           stroke-width="1.8"
+           stroke-linecap="round"
+           id="line66"
+           style="fill:#ffffff;stroke:#000000" />
+        <circle
+           cx="0"
+           cy="0"
+           r="1.8"
+           fill="#090d16"
+           id="circle68"
+           style="fill:#ffffff;stroke:#000000" />
+      </g>
+      <g
+         transform="translate(82.75,84)"
+         id="g80"
+         style="fill:#ffffff;stroke:#000000">
+        <circle
+           cx="0"
+           cy="0"
+           r="10.5"
+           fill="url(#linearGradient984)"
+           stroke="#090d16"
+           stroke-width="1.5"
+           id="circle72"
+           style="fill:#ffffff;stroke:#000000" />
+        <circle
+           cx="0"
+           cy="0"
+           r="8"
+           stroke="#475569"
+           stroke-width="0.9"
+           stroke-dasharray="1.5, 2.6"
+           id="circle74"
+           style="fill:#ffffff;stroke:#000000" />
+        <line
+           x1="0"
+           y1="0"
+           x2="-4"
+           y2="-6.5"
+           stroke="#090d16"
+           stroke-width="1.8"
+           stroke-linecap="round"
+           id="line76"
+           style="fill:#ffffff;stroke:#000000" />
+        <circle
+           cx="0"
+           cy="0"
+           r="1.8"
+           fill="#090d16"
+           id="circle78"
+           style="fill:#ffffff;stroke:#000000" />
+      </g>
+      <g
+         transform="translate(54.75,109)"
+         id="g90"
+         style="fill:#ffffff;stroke:#000000">
+        <circle
+           cx="0"
+           cy="0"
+           r="10.5"
+           fill="url(#linearGradient986)"
+           stroke="#090d16"
+           stroke-width="1.5"
+           id="circle82"
+           style="fill:#ffffff;stroke:#000000" />
+        <circle
+           cx="0"
+           cy="0"
+           r="8"
+           stroke="#475569"
+           stroke-width="0.9"
+           stroke-dasharray="1.5, 2.6"
+           id="circle84"
+           style="fill:#ffffff;stroke:#000000" />
+        <line
+           x1="0"
+           y1="0"
+           x2="6.5"
+           y2="3.5"
+           stroke="#090d16"
+           stroke-width="1.8"
+           stroke-linecap="round"
+           id="line86"
+           style="fill:#ffffff;stroke:#000000" />
+        <circle
+           cx="0"
+           cy="0"
+           r="1.8"
+           fill="#090d16"
+           id="circle88"
+           style="fill:#ffffff;stroke:#000000" />
+      </g>
+      <g
+         transform="translate(82.75,109)"
+         id="g100"
+         style="fill:#ffffff;stroke:#000000">
+        <circle
+           cx="0"
+           cy="0"
+           r="10.5"
+           fill="url(#linearGradient988)"
+           stroke="#090d16"
+           stroke-width="1.5"
+           id="circle92"
+           style="fill:#ffffff;stroke:#000000" />
+        <circle
+           cx="0"
+           cy="0"
+           r="8"
+           stroke="#475569"
+           stroke-width="0.9"
+           stroke-dasharray="1.5, 2.6"
+           id="circle94"
+           style="fill:#ffffff;stroke:#000000" />
+        <line
+           x1="0"
+           y1="0"
+           x2="2"
+           y2="-7"
+           stroke="#090d16"
+           stroke-width="1.8"
+           stroke-linecap="round"
+           id="line96"
+           style="fill:#ffffff;stroke:#000000" />
+        <circle
+           cx="0"
+           cy="0"
+           r="1.8"
+           fill="#090d16"
+           id="circle98"
+           style="fill:#ffffff;stroke:#000000" />
+      </g>
+      <g
+         transform="translate(68.75,97)"
+         id="g108">
+        <circle
+           cx="0"
+           cy="0"
+           r="9"
+           fill="#f8fafc"
+           stroke="#090d16"
+           stroke-width="1.6"
+           id="circle102" />
+        <line
+           x1="0"
+           y1="0"
+           x2="5"
+           y2="-5"
+           stroke="#090d16"
+           stroke-width="2"
+           stroke-linecap="round"
+           id="line104" />
+        <circle
+           cx="0"
+           cy="0"
+           r="2"
+           fill="#090d16"
+           id="circle106" />
+      </g>
+    </g>
+    <rect
+       style="opacity:0.832827;fill:#ffffff;stroke:none;stroke-width:1.48956;stroke-linecap:square;stroke-linejoin:round;stroke-dashoffset:18.1146;paint-order:stroke fill markers"
+       id="rect1082"
+       width="146.23419"
+       height="14.935415"
+       x="23.891245"
+       y="87.7089"
+       ry="3.2188973" />
+    <text
+       x="25.719009"
+       y="99.805183"
+       font-family="'DejaVu Sans', Arial, Helvetica, sans-serif"
+       font-size="13.8718px"
+       font-weight="bold"
+       letter-spacing="0.157635"
+       id="text134"
+       style="stroke:#000000;stroke-width:0.615;stroke-miterlimit:4;stroke-dasharray:none"><tspan
+         fill="url(#blackburnEmberDark)"
+         stroke="#fbbf24"
+         stroke-width="0.441378"
+         paint-order="stroke fill"
+         id="tspan128"
+         style="stroke:#000000;stroke-width:0.615;stroke-miterlimit:4;stroke-dasharray:none">BLACKBURN</tspan><tspan
+         fill="#e2e8f0"
+         stroke="#94a3b8"
+         stroke-width="0.252216"
+         id="tspan130"
+         style="stroke:#000000;stroke-width:0.615;stroke-miterlimit:4;stroke-dasharray:none">-</tspan><tspan
+         fill="url(#pulseTealDark)"
+         stroke="#2dd4bf"
+         stroke-width="0.378324"
+         paint-order="stroke fill"
+         id="tspan132"
+         style="stroke:#000000;stroke-width:0.615;stroke-miterlimit:4;stroke-dasharray:none">PULSE</tspan></text>
+  </g>
 </svg>
-

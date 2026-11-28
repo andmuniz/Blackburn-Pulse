@@ -1,10 +1,14 @@
 // Service Worker para Blackburn-Pulse PWA
-const CACHE_NAME = 'blackburn-pulse-v1';
+const CACHE_NAME = 'blackburn-pulse-v2';
 const ASSETS_TO_CACHE = [
   '/',
   '/manifest.json',
+  '/manifest.json?v=2',
   '/static/manifest.json',
-  '/static/icon-192.svg'
+  '/static/icon-192.svg',
+  '/static/icon-192.svg?v=2',
+  '/static/icon-512.svg',
+  '/static/icon-512.svg?v=2'
 ];
 
 self.addEventListener('install', event => {
